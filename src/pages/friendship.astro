@@ -1,0 +1,177 @@
+---
+// src/pages/friendship.astro
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship | gitor.uk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            box-sizing: border-box;
+        }
+
+        /* Background image with a darkening filter for text readability */
+        .bg-image {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-image: url('/paramahansa-yogananda-photo-2-5-x-3-5-yss-front-600x858.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            z-index: -1;
+            filter: brightness(0.35) saturate(1.2) blur(3px);
+            transition: filter 1s ease;
+        }
+
+        .poem-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 3.5rem;
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(214, 175, 55, 0.4);
+            transform: translateX(-4px);
+        }
+
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .poem {
+            white-space: pre-wrap; /* Honors the line breaks from your text */
+            line-height: 1.8;
+            font-size: 1.05rem;
+            text-align: center;
+            color: rgba(243, 244, 246, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .poem-container {
+                padding: 2rem;
+            }
+            .poem {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    
+    <div class="poem-container">
+        <a href="/" class="back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Back
+        </a>
+        
+        <h1>Friendship</h1>
+        
+        <div class="poem">Is friendship the weaving of the red strings of two hearts?
+Is it the blending of two minds into a spacious one-mind?
+Is it the spouting of love founts together —
+To strengthen the rush of love on droughty souls?
+Is it the one rose grown ’twixt twin mind-branchlets
+Of one compassionate stem?
+Is it the one thinking in two bodies?
+Or, is it like two strong stallions,
+Disparate in color and mien,
+Pulling the chariot of life together
+To the single goal with one mind sight?
+Is friendship founded on equalities or inequalities?
+Is it built on diverse stones of differences?
+Is friendship the unthinkingly agreeing,
+The hand in hand, blind walking of two souls,
+Foolishly rejoicing in their united folly,
+Falling at last into a pit of disillusionment?
+Friendship is noble, fruitful, holy —
+When two separate souls march in difference
+Yet in harmony, agreeing and disagreeing,
+Glowingly improving diversely,
+With one common longing to find solace in true pleasure.
+When ne’er the lover seeks
+Self-comfort at cost of the one beloved,
+Then, in that garden of selflessness
+Fragrant friendship perfectly flowers.
+For friendship is a hybrid, born of two souls,
+The blended fragrance of two unlike flowers
+Blown together in love’s caressing breeze.
+Friendship is born from the very core
+Of secret, inexplicable likings.
+Friendship is the fountain of true feelings.
+Friendship grows in both likeness and difference.
+Friendship sleeps or dies in familiarity,
+And decays in lusts of narrow-eyed selves.
+Friendship grows tall and sturdy
+In the soil of oneness in body, mind, and soul.
+Demands, deceptions, sordid sense of possession,
+Courtesy’s lack, narrow self-love, suspicion,
+These are cankers which eat at the heart of friendship.
+Ah, friendship! Flowering, heaven-born plant!
+Nurtured art thou in the soil of measureless love,
+In the seeking of soul-progress together
+By two who would smooth the way each for the other.
+And thou art watered by attentions of affection
+And the tender dews of inner and outer sweetness
+Of the inmost, selfless heart’s devotion.
+Ah, friendship! Where thy soul-born flowers fall —
+There, on that sacred shrine of fragrance,
+The Friend of all friends craves to come and remain!</div>
+    </div>
+</body>
+</html>
