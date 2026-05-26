@@ -1,0 +1,144 @@
+---
+// src/pages/gitanjali.astro
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gitanjali | God Is The Only Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.8);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5.5rem 2rem 4rem 2rem;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('/paramahansa-yogananda-photo-2-5-x-3-5-yss-front-600x858.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            z-index: -1;
+            filter: brightness(0.25) saturate(1.1) blur(5px);
+        }
+
+        .content-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 4rem;
+            max-width: 850px;
+            width: 100%;
+        }
+
+        .back-btn {
+            position: fixed; top: 1.5rem; left: 1.5rem;
+            z-index: 999; display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(14, 14, 14, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); padding: 0.6rem 1.2rem; border-radius: 100px;
+            color: var(--text-main); font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; text-decoration: none; transition: all 0.2s;
+        }
+
+        .back-btn:hover { border-color: var(--accent); transform: translateX(4px); }
+
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+        }
+
+        .chapter { margin-bottom: 4rem; }
+        .chapter-title {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            display: block;
+            border-bottom: 1px solid rgba(202, 159, 27, 0.2);
+            padding-bottom: 0.5rem;
+            width: fit-content;
+        }
+
+        .poem-text {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: rgba(243, 244, 246, 0.95);
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .content-container { padding: 2rem; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <a href="/" class="back-btn">← Back</a>
+    
+    <div class="content-container">
+        <h1>Gitanjali</h1>
+
+        <div class="chapter">
+            <span class="chapter-title">Chapter 1</span>
+            <div class="poem-text">Thou hast made me endless, such is thy pleasure. This frail vessel thou emptiest again and again, and fillest it ever with fresh life.
+
+This little flute of a reed thou hast carried over hills and dales, and hast breathed through it melodies eternally new.
+
+At the immortal touch of thy hands my little heart loses its limits in joy and gives birth to utterance ineffable.
+
+Thy infinite gifts come to me only on these very small hands of mine. Ages pass, and still thou pourest, and still there is room to fill.</div>
+        </div>
+
+        <div class="chapter">
+            <span class="chapter-title">Chapter 2</span>
+            <div class="poem-text">When thou commandest me to sing it seems that my heart would break with pride; and I look to thy face, and tears come to my eyes.
+
+All that is harsh and dissonant in my life melts into one sweet harmony - and my adoration spreads wings like a glad bird on its flight across the sea.
+
+I know thou takest pleasure in my singing. I know that only as a singer I come before thy presence.
+
+I touch by the edge of the far-spreading wing of my song thy feet which I could never aspire to reach.
+
+Drunk with the joy of singing I forget myself and call thee friend who art my lord.</div>
+        </div>
+
+        <div class="chapter">
+            <span class="chapter-title">Chapter 103</span>
+            <div class="poem-text">In one salutation to thee, my God, let all my senses spread out and touch this world at thy feet.
+
+Like a rain-cloud of July hung low with its burden of unshed showers let all my mind bend down at thy door in one salutation to thee.
+
+Let all my songs gather together their diverse strains into a single current and flow to a sea of silence in one salutation to thee.
+
+Like a flock of homesick cranes flying night and day back to their mountain nests let all my life take its voyage to its eternal home in one salutation to thee.</div>
+        </div>
+    </div>
+</body>
+</html>

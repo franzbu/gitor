@@ -1,10 +1,9 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "gitor-main",
-  "main": "./dist/_worker.js/index.js",
-  "compatibility_date": "2026-05-26",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "gitor-main",
+	"compatibility_date": "2026-05-26",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	}
 }
