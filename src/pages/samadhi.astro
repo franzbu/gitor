@@ -1,0 +1,194 @@
+---
+// src/pages/samadhi.astro
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samadhi | God Is The Only Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 2rem;
+            box-sizing: border-box;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-image: url('/paramahansa-yogananda-photo-2-5-x-3-5-yss-front-600x858.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            z-index: -1;
+            filter: brightness(0.35) saturate(1.2) blur(3px);
+            transition: filter 1s ease;
+        }
+
+        .poem-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 3.5rem;
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem 0.5rem 0.5rem;
+            border-radius: 100px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(214, 175, 55, 0.4);
+            transform: translateX(-4px);
+        }
+
+        h1 {
+            color: var(--accent);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2.5rem;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .poem {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            text-align: center;
+            color: rgba(243, 244, 246, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .poem-container {
+                padding: 2rem;
+            }
+            .poem {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    
+    <div class="poem-container">
+        <a href="/" class="back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Back
+        </a>
+        
+        <h1>Samadhi</h1>
+        
+        <div class="poem">Vanished the veils of light and shade,
+Lifted every vapor of sorrow,
+Sailed away all dawns of fleeting joy,
+Gone the dim sensory mirage.
+Love, hate, health, disease, life, death,
+Perished these false shadows on the screen of duality.
+Waves of laughter, scyllas of sarcasm, melancholic whirlpools,
+Melting in the vast sea of bliss.
+The storm of maya stilled
+By magic wand of intuition deep.
+The universe, forgotten dream, subconsciously lurks,
+Ready to invade my newly wakened memory divine.
+I live without the cosmic shadow,
+But it is not, bereft of me;
+As the sea exists without the waves,
+But they breathe not without the sea.
+Dreams, wakings, states of deep turiya,sleep;
+Present, past, future, no more for me,
+But ever-present, all-flowing I, I, everywhere.
+Planets, stars, stardust, earth,
+Volcanic bursts of doomsday cataclysms,
+Creation’s molding furnace,
+Glaciers of silent x-rays, burning electron floods,
+Thoughts of all men, past, present, to come,
+Every blade of grass, myself, mankind,
+Each particle of universal dust,
+Anger, greed, good, bad, salvation, lust,
+I swallowed, transmuted all
+Into a vast ocean of blood of my own one Being!
+Smoldering joy, oft-puffed by meditation,
+Blinding my tearful eyes,
+Burst into immortal flames of bliss,
+Consumed my tears, my frame, my all.
+Thou art I, I am Thou,
+Knowing, Knower, Known, as One!
+Tranquilled, unbroken thrill, eternally living, ever new peace!
+Enjoyable beyond imagination of expectancy, samadhi bliss!
+Not a mental chloroform
+Or unconscious state without wilful return,
+Samadhi but extends my conscious realm
+Beyond the limits of the mortal frame
+To farthest boundary of eternity
+Where I, the Cosmic Sea,
+Watch the little ego floating in me.
+The sparrow, each grain of sand, fall not without my sight.
+All space like an iceberg floats within my mental sea.
+Colossal Container, I, of all things made.
+By deeper, longer, thirsty, guru-given meditation
+Comes this celestial samadhi.
+Mobile murmurs of atoms are heard,
+The dark earth, mountains, vales, lo! molten liquid!
+Flowing seas change into vapors of nebulae!
+Aum blows upon the vapors, opening wondrously their veils,
+Oceans stand revealed, shining electrons,
+Till, at last sound of the cosmic drum,
+Vanish the grosser lights into eternal rays
+Of all-pervading bliss.
+From joy I came, for joy I live, in sacred joy I melt.
+Ocean of mind, I drink all Creation’s waves.
+Four veils of solid, liquid, vapor, light,
+Lift aright.
+Myself, in everything, enters the Great Myself.
+Gone forever, fitful, flickering shadows of mortal memory.
+Spotless is my mental sky, below, ahead, and high above.
+Eternity and I, one united ray.
+A tiny bubble of laughter, I
+Am become the Sea of Mirth Itself.</div>
+    </div>
+</body>
+</html>
