@@ -6,7 +6,7 @@ export async function getStaticPaths() {
   // Remove all images and their direct captions 
   let noImagesHtml = rawHtml.replace(/<div class="calibre3">\s*<img[^>]*>\s*<\/div>(?:\s*<div class="calibre(?:11|14|6)">[\s\S]*?<\/div>|\s*<div class="calibre18">\s*<\/div>)*/gi, '');
 
-  // Extract all footnotes from the bottom of the book
+  // Extract all footnotes from the bottom of the book so we can inject them invisibly for the popup to read
   const footnotesRegex = /<div class="calibre12">\s*<div class="calibre17">\s*<a id="calibre_link-\d+" href="#calibre_link-\d+" class="calibre9">\d+<\/a>[\s\S]*?<\/div>\s*<\/div>/gi;
   const allFootnotesMatches = [...noImagesHtml.matchAll(footnotesRegex)];
   const allFootnotesHtml = allFootnotesMatches.map(m => m[0]).join('\n');
@@ -14,32 +14,10 @@ export async function getStaticPaths() {
   // Split into chapters by the strict CHAPTER heading structure inside the HTML
   const chapterParts = noImagesHtml.split(/<div class="calibre10">\s*<span class="calibre4">\s*<span class="bold">\s*CHAPTER(?:[^<]*|<\/?span[^>]*>)*<\/div>/i);
   
-  // 1. Isolate the Preface from the front-matter (Index 0 before the split)
-  const frontMatter = chapterParts[0];
-  let prefaceContent = "Preface content missing.";
-  // Split by the Preface heading, taking the very last instance to bypass the Table of Contents
-  const prefMatch = frontMatter.split(/PREFACE(?:[^<]*|<\/?a[^>]*>|<\/?span[^>]*>)*<\/div>/i);
-  if (prefMatch.length > 1) {
-      prefaceContent = prefMatch.pop(); // Take the text body after the heading
-      
-      // Truncate exactly after the signature to cleanly remove "Author's" and the Acknowledgements section
-      const signatureIndex = prefaceContent.indexOf("EVANS-WENTZ");
-      if (signatureIndex !== -1) {
-          const closeDivIndex = prefaceContent.indexOf('</div>', signatureIndex);
-          if (closeDivIndex !== -1) {
-              prefaceContent = prefaceContent.substring(0, closeDivIndex + 6);
-          }
-      } else {
-          prefaceContent = prefaceContent.split(/Acknowledg/i)[0]; // Fallback
-      }
-  }
+  // The first part is front-matter. Chapters are exactly indices 1 through 48.
+  const rawChapters = chapterParts.slice(1, 49);
 
-  // 2. Combine the Preface with the 48 core chapters
-  const rawChapters = [prefaceContent, ...chapterParts.slice(1, 49)];
-
-  // 3. Add Preface to the very beginning of the titles array
   const chapterTitles = [
-    "Preface",
     "My Parents and Early Life", "My Mother’s Death and the Mystic Amulet", "The Saint with Two Bodies",
     "My Interrupted Flight Toward the Himalayas", "A “Perfume Saint” Displays his Wonders",
     "The Tiger Swami", "The Levitating Saint", "India’s Great Scientist, J. C. Bose",
@@ -63,8 +41,7 @@ export async function getStaticPaths() {
   ];
 
   return chapterTitles.map((title, index) => {
-    // 4. Chapter Number now matches the index exactly (0 = Preface, 1 = Chapter 1)
-    const chapterNumber = index; 
+    const chapterNumber = index + 1;
     let content = rawChapters[index] || "Chapter content missing.";
 
     // Remove the repeated chapter title bleeding into the text body
@@ -75,8 +52,10 @@ export async function getStaticPaths() {
         const endPhrase = "overcoming of all human misery";
         const phraseIndex = content.indexOf(endPhrase);
         if (phraseIndex !== -1) {
+            // Find the closing tag of that paragraph so the HTML remains perfectly valid
             const closeDivIndex = content.indexOf('</div>', phraseIndex);
             if (closeDivIndex !== -1) {
+                // Slices off everything after this paragraph (Index, Notes, visible Footnotes)
                 content = content.substring(0, closeDivIndex + 6);
             }
         }
@@ -89,7 +68,7 @@ export async function getStaticPaths() {
         title,
         content,
         allTitles: chapterTitles,
-        allFootnotesHtml
+        allFootnotesHtml // Passed down so the modal can access it invisibly
       }
     };
   });
@@ -175,6 +154,7 @@ const totalChapters = allTitles.length;
             color: rgba(243, 244, 246, 0.9);
         }
 
+        /* Essential spacing classes injected natively by the HTML file */
         .text-body .calibre12, .text-body .calibre18 { margin-bottom: 1.2rem; }
         .text-body .italic { font-style: italic; }
         .text-body .bold { font-weight: bold; }
@@ -230,7 +210,7 @@ const totalChapters = allTitles.length;
             <a href="/" class="back-btn">← Back</a>
             <select class="chapter-selector" onchange="window.location.href='/yogi/' + this.value">
                 {allTitles.map((t, idx) => (
-                    <option value={idx} selected={idx === chapterNumber}>
+                    <option value={idx + 1} selected={idx + 1 === chapterNumber}>
                         {t}
                     </option>
                 ))}
@@ -242,11 +222,11 @@ const totalChapters = allTitles.length;
         <div class="text-body" set:html={content}></div>
 
         <div class="pagination-footer">
-            {chapterNumber > 0 ? (
+            {chapterNumber > 1 ? (
                 <a href={`/yogi/${chapterNumber - 1}`} class="nav-link">← Prev</a>
             ) : <div />}
             
-            {chapterNumber < totalChapters - 1 ? (
+            {chapterNumber < totalChapters ? (
                 <a href={`/yogi/${chapterNumber + 1}`} class="nav-link">Next →</a>
             ) : <div />}
         </div>
@@ -263,6 +243,7 @@ const totalChapters = allTitles.length;
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('footnote-modal');
 
+            // Listen for clicks on the superscript footnote links
             document.querySelectorAll('a.calibre9').forEach(link => {
                 if(link.querySelector('sup')) {
                     link.addEventListener('click', (e) => {
@@ -270,6 +251,7 @@ const totalChapters = allTitles.length;
                         const targetId = link.getAttribute('href').substring(1);
                         const footnoteEl = document.getElementById(targetId);
                         if (footnoteEl) {
+                            // Extract the text and show the modal
                             document.getElementById('footnote-content').innerHTML = footnoteEl.parentElement.innerHTML;
                             modal.classList.add('active');
                         }
@@ -277,10 +259,12 @@ const totalChapters = allTitles.length;
                 }
             });
 
+            // Close modal button
             document.getElementById('close-footnote').addEventListener('click', () => {
                 modal.classList.remove('active');
             });
 
+            // If the user clicks the number *inside* the modal, just close the modal instead of scrolling
             document.getElementById('footnote-content').addEventListener('click', (e) => {
                 if(e.target.tagName === 'A') {
                     e.preventDefault();
@@ -288,12 +272,14 @@ const totalChapters = allTitles.length;
                 }
             });
 
+            // Close on Esc key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
                 }
             });
 
+            // Close on clicking/tapping outside the modal
             document.addEventListener('click', (e) => {
                 if (modal.classList.contains('active') && 
                     !modal.contains(e.target) && 

@@ -1,0 +1,278 @@
+---
+// src/pages/autobiography.astro
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reader | God Is The Only Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js" is:inline></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js" is:inline></script>
+
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --ui-bg: rgba(14, 14, 14, 0.9);
+            --ui-border: rgba(214, 175, 55, 0.2);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--ui-bg);
+            border-bottom: 1px solid var(--ui-border);
+            z-index: 10;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        button, select {
+            background: transparent;
+            border: 1px solid var(--ui-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        button:hover, select:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        select {
+            background: var(--ui-bg);
+            max-width: 300px;
+        }
+
+        #viewer-container {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        #viewer {
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            background: var(--bg);
+            transition: background 0.3s;
+        }
+
+        .page-turn-area {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            z-index: 5;
+            cursor: pointer;
+        }
+        #prev-area { left: 0; }
+        #next-area { right: 0; }
+
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .toolbar { flex-wrap: wrap; gap: 1rem; padding: 1rem; justify-content: center;}
+            select { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="tool-group">
+            <button onclick="window.location.href='/'">← Hub</button>
+            <select id="toc-select">
+                <option value="">Loading Chapters...</option>
+            </select>
+        </div>
+
+        <div class="tool-group">
+            <select id="font-family">
+                <option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Times New Roman', serif">Times</option>
+            </select>
+            <select id="font-size">
+                <option value="90%">90%</option>
+                <option value="100%" selected>100%</option>
+                <option value="115%">115%</option>
+                <option value="130%">130%</option>
+                <option value="150%">150%</option>
+            </select>
+            <select id="line-spacing">
+                <option value="1.4">Sp: 1.4</option>
+                <option value="1.6" selected>Sp: 1.6</option>
+                <option value="1.8">Sp: 1.8</option>
+                <option value="2.0">Sp: 2.0</option>
+            </select>
+        </div>
+        
+        <div class="tool-group">
+            <button id="theme-toggle">Light Mode</button>
+            <button id="btn-prev">Prev</button>
+            <button id="btn-next">Next</button>
+        </div>
+    </div>
+
+    <div id="viewer-container">
+        <div id="loader">Loading Book...</div>
+        <div id="prev-area" class="page-turn-area"></div>
+        <div id="viewer"></div>
+        <div id="next-area" class="page-turn-area"></div>
+    </div>
+
+    <script is:inline>
+        document.addEventListener('DOMContentLoaded', () => {
+            const book = window.ePub("/yogi.epub");
+            
+            const rendition = book.renderTo("viewer", {
+                width: "100%",
+                height: "100%",
+                spread: "none",
+                manager: "continuous",
+                flow: "paginated"
+            });
+
+            // NEW: Inject external fonts and custom CSS variables into the EPUB iframe
+            rendition.hooks.content.register((contents) => {
+                contents.addStylesheet("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+                
+                // Initialize line spacing from dropdown immediately
+                const spacing = document.getElementById("line-spacing").value;
+                contents.document.documentElement.style.setProperty('--line-spacing', spacing);
+            });
+
+            // Register Themes (Now utilizing the CSS variables injected above)
+            rendition.themes.register("dark", {
+                body: { background: "#030303", color: "#f3f4f6", "line-height": "var(--line-spacing, 1.6) !important" },
+                p: { "line-height": "var(--line-spacing, 1.6) !important" },
+                a: { color: "#ca9f1b", "text-decoration": "none" }
+            });
+            rendition.themes.register("light", {
+                body: { background: "#fbf8f1", color: "#1a1a1a", "line-height": "var(--line-spacing, 1.6) !important" },
+                p: { "line-height": "var(--line-spacing, 1.6) !important" },
+                a: { color: "#ca9f1b", "text-decoration": "none" }
+            });
+
+            let currentTheme = "dark";
+            rendition.themes.select(currentTheme);
+
+            // NEW: Apply Default Font Settings
+            rendition.themes.font(document.getElementById("font-family").value);
+            rendition.themes.fontSize(document.getElementById("font-size").value);
+
+            rendition.display().then(() => {
+                document.getElementById('loader').style.display = 'none';
+            });
+
+            book.loaded.navigation.then((nav) => {
+                const select = document.getElementById("toc-select");
+                select.innerHTML = '<option value="">Select Chapter...</option>';
+                
+                nav.forEach(navItem => {
+                    const option = document.createElement("option");
+                    option.textContent = navItem.label;
+                    option.value = navItem.href;
+                    select.appendChild(option);
+                });
+
+                select.addEventListener("change", (e) => {
+                    if (e.target.value) {
+                        rendition.display(e.target.value);
+                    }
+                });
+            });
+
+            // Navigation Controls
+            const next = () => rendition.next();
+            const prev = () => rendition.prev();
+
+            document.getElementById("btn-next").addEventListener("click", next);
+            document.getElementById("btn-prev").addEventListener("click", prev);
+            document.getElementById("next-area").addEventListener("click", next);
+            document.getElementById("prev-area").addEventListener("click", prev);
+
+            document.addEventListener("keyup", (e) => {
+                if (e.key === "ArrowRight") next();
+                if (e.key === "ArrowLeft") prev();
+            });
+
+            // Theme Toggling
+            document.getElementById("theme-toggle").addEventListener("click", (e) => {
+                if (currentTheme === "dark") {
+                    currentTheme = "light";
+                    document.body.style.backgroundColor = "#fbf8f1";
+                    document.getElementById("viewer").style.backgroundColor = "#fbf8f1";
+                    e.target.textContent = "Dark Mode";
+                } else {
+                    currentTheme = "dark";
+                    document.body.style.backgroundColor = "#030303";
+                    document.getElementById("viewer").style.backgroundColor = "#030303";
+                    e.target.textContent = "Light Mode";
+                }
+                rendition.themes.select(currentTheme);
+            });
+
+            // NEW: Event Listeners for Formatting Controls
+            document.getElementById("font-family").addEventListener("change", (e) => {
+                rendition.themes.font(e.target.value);
+            });
+
+            document.getElementById("font-size").addEventListener("change", (e) => {
+                rendition.themes.fontSize(e.target.value);
+            });
+
+            document.getElementById("line-spacing").addEventListener("change", (e) => {
+                const spacing = e.target.value;
+                // Dynamically update the CSS variable inside the loaded iframe chapters
+                rendition.getContents().forEach(contents => {
+                    contents.document.documentElement.style.setProperty('--line-spacing', spacing);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
