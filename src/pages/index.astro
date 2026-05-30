@@ -1,5 +1,17 @@
 ---
 // src/pages/index.astro
+import fileContent from '../data/spiritual_diary.txt?raw';
+
+// 1. Lock the timezone to Europe/Rome to guarantee the quote shifts exactly at local midnight
+const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
+const todayStr = new Intl.DateTimeFormat('en-US', options).format(new Date());
+
+// 2. Extract the quote using a robust Regex
+const regex = new RegExp(`\\*\\s+${todayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
+const match = fileContent.match(regex);
+
+const quote = match ? match[1] : "Begin each day with a heart full of gratitude.";
+const citation = match ? match[2] : "Paramahansa Yogananda";
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -12,33 +24,34 @@
     <style is:global>
         :root {
             --bg: #030303;
-            --card-bg: rgba(14, 14, 14, 0.65);
-            --card-border: rgba(214, 175, 55, 0.09);
-            --accent: #ca9f1b;
             --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
         }
-        
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            margin: 0;
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(214, 175, 55, 0.04), transparent 45%),
-                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.02), transparent 45%);
+            min-height: 100vh;
+            margin: 0;
         }
 
-        .container { text-align: center; max-width: 900px; width: 100%; padding: 2rem; }
+        .container { text-align: center; padding: 2rem; }
+
+        /* Quote Styles */
+        .daily-quote { margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .quote { font-style: italic; font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; }
+        .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
 
         h1 { 
-            font-size: clamp(2rem, 8vw, 3.5rem); 
-            margin-bottom: 4rem; 
-            background: linear-gradient(135deg, #fff 50%, var(--accent));
+            font-size: 3.5rem; 
+            margin: 3.5rem 0; /* Addressed spacing: more room before and after */
+            background: linear-gradient(to right, var(--text-main) 50%, var(--accent));
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
             font-weight: 800;
@@ -73,12 +86,18 @@
 </head>
 <body>
     <div class="container">
+        <div class="daily-quote">
+            <p class="quote">"{quote}"</p>
+            <p class="citation">— {citation}</p>
+        </div>
+
         <h1>God Is The Only Reality</h1>
+        
         <div class="nav-grid">
+            <a href="/yogi/1" class="link-card">Autobiography of a Yogi</a>
+            <a href="/samadhi" class="link-card">Samadhi</a>
             <a href="/friendship" class="link-card">Friendship</a>
             <a href="/gitanjali" class="link-card">Gitanjali</a>
-            <a href="/samadhi" class="link-card">Samadhi</a>
-            <a href="/yogi/1" class="link-card">Autobiography of a Yogi</a>
         </div>
     </div>
 </body>
