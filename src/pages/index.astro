@@ -2,11 +2,10 @@
 // src/pages/index.astro
 import fileContent from '../data/spiritual_diary.txt?raw';
 
-// 1. Lock the timezone to Europe/Rome to guarantee the quote shifts exactly at local midnight
+// 1. Server-side fallback: Keeps the Rome timezone so the page never loads blank
 const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
 const todayStr = new Intl.DateTimeFormat('en-US', options).format(new Date());
 
-// 2. Extract the quote using a robust Regex
 const regex = new RegExp(`\\*\\s+${todayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
 const match = fileContent.match(regex);
 
@@ -101,8 +100,8 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
 <body>
     <div class="container">
         <div class="daily-quote">
-            <p class="quote">"{quote}"</p>
-            <p class="citation">— {citation}</p>
+            <p class="quote" id="daily-quote-text">"{quote}"</p>
+            <p class="citation" id="daily-citation-text">— {citation}</p>
         </div>
 
         <h1>God Is The Only Reality</h1>
@@ -115,5 +114,28 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
             <a href="/you" class="link-card">You</a>
         </div>
     </div>
+
+    <script define:vars={{ fileContent }}>
+        // Runs immediately in the visitor's browser
+        const now = new Date();
+        
+        // Without 'timeZone' specified, this automatically uses the visitor's system timezone
+        const options = { month: 'long', day: 'numeric' };
+        const localTodayStr = new Intl.DateTimeFormat('en-US', options).format(now);
+
+        const regex = new RegExp(`\\*\\s+${localTodayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
+        const match = fileContent.match(regex);
+
+        // If a quote is found for their local day, overwrite the fallback Italian quote
+        if (match) {
+            const quoteEl = document.getElementById('daily-quote-text');
+            const citationEl = document.getElementById('daily-citation-text');
+            
+            if(quoteEl && citationEl) {
+                quoteEl.textContent = `"${match[1]}"`;
+                citationEl.textContent = `— ${match[2]}`;
+            }
+        }
+    </script>
 </body>
 </html>
