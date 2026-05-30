@@ -39,6 +39,20 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
             justify-content: center;
             min-height: 100vh;
             margin: 0;
+            position: relative;
+        }
+
+        /* Dynamically resizing Om background using the attached SVG as a mask */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--accent);
+            opacity: 0.11;
+            -webkit-mask: url('/Om_symbol.svg') no-repeat center / 100vmin;
+            mask: url('/Om_symbol.svg') no-repeat center / 100vmin;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .container { text-align: center; padding: 2rem; }
