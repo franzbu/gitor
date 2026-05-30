@@ -1,0 +1,144 @@
+---
+// src/pages/you.astro
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOU | God Is The Only Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 4rem 3.5rem;
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            color: var(--text-main); text-decoration: none; font-size: 0.8rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem; border-radius: 100px; transition: all 0.2s;
+        }
+
+        .back-btn:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: var(--accent); 
+        }
+
+        h1 {
+            color: var(--accent);
+            font-size: 2.5rem;
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+
+        .poem {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: rgba(243, 244, 246, 0.9);
+            font-weight: 400;
+        }
+
+        .poem p {
+            margin-bottom: 2rem;
+        }
+
+        .poem p:last-child {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 4rem 2rem 3rem 2rem; }
+            .back-btn { top: 1.5rem; left: 1.5rem; }
+            h1 { font-size: 2rem; margin-top: 2rem; }
+            .poem { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back</a>
+        
+        <h1>YOU</h1>
+        
+        <div class="poem">
+            <p>
+                I see You in them.<br>
+                I miss You in them.<br>
+                I seek You in them.<br>
+                I love You in them.
+            </p>
+            
+            <p>
+                You come to me through them.<br>
+                You are the One Love in them.<br>
+                The One Lover.
+            </p>
+            
+            <p>
+                Help me to see You within and beyond them.<br>
+                Help me to feel You within and beyond them.<br>
+                Help me to love You in and beyond them.
+            </p>
+            
+            <p>
+                It is You I have been seeking.<br>
+                It is You I have loved.
+            </p>
+            
+            <p>
+                It is You who has been seeking me.<br>
+                It is You who has loved me.
+            </p>
+            
+            <p>
+                It has always been You.<br>
+                It will always be You.
+            </p>
+            
+            <p>
+                Only You.<br>
+                You.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
