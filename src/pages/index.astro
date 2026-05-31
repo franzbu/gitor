@@ -12,6 +12,9 @@ const match = fileContent.match(regex);
 
 const quote = match ? match[1] : "Begin each day with a heart full of gratitude.";
 const citation = match ? match[2] : "Paramahansa Yogananda";
+
+// 2. Calculate the total number of quotes on the server so the text isn't leaked to the client
+const totalQuotes = quotesContent.split(/\n\s*\n+/).filter(b => b.trim().length > 0 && !b.startsWith('_')).length;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -125,7 +128,7 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
         </div>
     </div>
 
-    <script define:vars={{ fileContent, quotesContent }}>
+    <script define:vars={{ fileContent, totalQuotes }}>
         // --- 1. DAILY SPIRITUAL DIARY QUOTE ---
         const now = new Date();
         const options = { month: 'long', day: 'numeric' };
@@ -144,23 +147,8 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
             }
         }
 
-        // --- 2. HOURLY RANDOM FOOTER QUOTE ---
-        // Split the imported text into separate blocks based on double (or more) newlines
-        const blocks = quotesContent.split(/\n\s*\n+/).map(b => b.trim()).filter(b => b.length > 0 && !b.startsWith('_'));
-        const quotesList = [];
-
-        // Parse each block to separate the quote from the citation
-        blocks.forEach(block => {
-            const blockMatch = block.match(/([\s\S]+?)\n[-—―]\s*(.*)/);
-            if (blockMatch) {
-                quotesList.push({
-                    quote: blockMatch[1].trim(),
-                    citation: blockMatch[2].trim()
-                });
-            }
-        });
-
-        if (quotesList.length > 0) {
+        // --- 2. HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
+        if (totalQuotes > 0) {
             const currentHour = Math.floor(Date.now() / 3600000);
             
             // Simple seeded random function to ensure the quote stays the same for the entire hour
@@ -169,24 +157,35 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
                 return x - Math.floor(x);
             };
 
-            let idx = Math.floor(seededRandom(currentHour) * quotesList.length);
-            let prevIdx = Math.floor(seededRandom(currentHour - 1) * quotesList.length);
+            let idx = Math.floor(seededRandom(currentHour) * totalQuotes);
+            let prevIdx = Math.floor(seededRandom(currentHour - 1) * totalQuotes);
 
             // Ensure the quote is never the same as the previous hour's quote
-            if (idx === prevIdx && quotesList.length > 1) {
-                idx = (idx + 1) % quotesList.length;
+            if (idx === prevIdx && totalQuotes > 1) {
+                idx = (idx + 1) % totalQuotes;
             }
 
-            const selectedQuote = quotesList[idx];
-            const hourlyQuoteEl = document.getElementById('hourly-quote-text');
-            const hourlyCitationEl = document.getElementById('hourly-citation-text');
+            // Fetch ONLY the specific quote fragment needed for this hour
+            fetch(`/quotes/quote-${idx}.txt`)
+                .then(response => response.text())
+                .then(text => {
+                    const blockMatch = text.match(/([\s\S]+?)\n[-—―]\s*(.*)/);
+                    if (blockMatch) {
+                        const rawQuote = blockMatch[1].trim();
+                        const rawCitation = blockMatch[2].trim();
+                        
+                        const hourlyQuoteEl = document.getElementById('hourly-quote-text');
+                        const hourlyCitationEl = document.getElementById('hourly-citation-text');
 
-            if (hourlyQuoteEl && hourlyCitationEl) {
-                // Ensure wrapping quotes if they aren't included in the raw text
-                const hasQuotes = selectedQuote.quote.startsWith('"') || selectedQuote.quote.startsWith('“');
-                hourlyQuoteEl.textContent = hasQuotes ? selectedQuote.quote : `"${selectedQuote.quote}"`;
-                hourlyCitationEl.textContent = selectedQuote.citation;
-            }
+                        if (hourlyQuoteEl && hourlyCitationEl) {
+                            // Ensure wrapping quotes if they aren't included in the raw text
+                            const hasQuotes = rawQuote.startsWith('"') || rawQuote.startsWith('“');
+                            hourlyQuoteEl.textContent = hasQuotes ? rawQuote : `"${rawQuote}"`;
+                            hourlyCitationEl.textContent = rawCitation;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching quote:', error));
         }
     </script>
 </body>
