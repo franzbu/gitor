@@ -95,6 +95,9 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
             transform: translateY(-4px);
             box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.7);
         }
+
+        /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
+        .footer-quote { margin-top: 40rem; margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -112,6 +115,12 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
             <a href="/friendship" class="link-card">Friendship</a>
             <a href="/gitanjali" class="link-card">Gitanjali</a>
             <a href="/you" class="link-card">You</a>
+            <a href="/plato_allegory" class="link-card">Allegory of the Cave</a>
+        </div>
+
+        <div class="daily-quote footer-quote">
+            <p class="quote">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
+            <p class="citation">— Shakespeare, The Tempest</p>
         </div>
     </div>
 

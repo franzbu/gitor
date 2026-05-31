@@ -59,9 +59,10 @@
         }
 
         .back-btn {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
+            position: fixed;
+            top: 1.5rem; 
+            left: 1.5rem; 
+            z-index: 999;
             display: inline-flex; align-items: center; gap: 0.5rem;
             color: var(--text-main); text-decoration: none; font-size: 0.8rem; font-weight: 700;
             font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
@@ -108,9 +109,9 @@
     </style>
 </head>
 <body>
+    <a href="/" class="back-btn">← Back</a>
+
     <div class="container">
-        <a href="/" class="back-btn">← Back</a>
-        
         <h1>YOU</h1>
         
         <div class="poem">
