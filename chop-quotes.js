@@ -8,9 +8,18 @@ if (!fs.existsSync(outputDir)){
     fs.mkdirSync(outputDir, { recursive: true });
 }
 
-// Read the master file and split it into blocks
+// Read the master file
 const text = fs.readFileSync(quotesPath, 'utf-8');
-const blocks = text.split(/\n\s*\n+/).map(b => b.trim()).filter(b => b.length > 0 && !b.startsWith('_'));
+const blocks = [];
+
+// Match everything up to and including the citation line (starts with -, —, or ―)
+const regex = /([\s\S]+?)\n([-—―][^\n]+)/g;
+let match;
+
+while ((match = regex.exec(text)) !== null) {
+    // trim() removes leading empty lines between quotes, keeping the quote's internal structure intact
+    blocks.push(match[0].trim()); 
+}
 
 // Write each block into its own file
 blocks.forEach((block, index) => {

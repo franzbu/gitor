@@ -13,8 +13,8 @@ const match = fileContent.match(regex);
 const quote = match ? match[1] : "Begin each day with a heart full of gratitude.";
 const citation = match ? match[2] : "Paramahansa Yogananda";
 
-// 2. Calculate the total number of quotes on the server so the text isn't leaked to the client
-const totalQuotes = quotesContent.split(/\n\s*\n+/).filter(b => b.trim().length > 0 && !b.startsWith('_')).length;
+// 2. Calculate the total number of quotes by counting the citation blocks
+const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].length;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +62,9 @@ const totalQuotes = quotesContent.split(/\n\s*\n+/).filter(b => b.trim().length 
 
         /* Quote Styles */
         .daily-quote { margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
-        .quote { font-style: italic; font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; }
+        
+        /* white-space: pre-wrap added here to respect empty lines in quotes */
+        .quote { font-style: italic; font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; white-space: pre-wrap; }
         .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
 
         h1 { 
