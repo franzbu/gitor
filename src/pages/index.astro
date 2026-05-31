@@ -1,6 +1,7 @@
 ---
 // src/pages/index.astro
 import fileContent from '../data/spiritual_diary.txt?raw';
+import quotesContent from '../data/quotes.txt?raw';
 
 // 1. Server-side fallback: Keeps the Rome timezone so the page never loads blank
 const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
@@ -97,14 +98,14 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
         }
 
         /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
-        .footer-quote { margin-top: 40rem; margin-bottom: 0; }
+        .footer-quote { margin-top: 20rem; margin-bottom: 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="daily-quote">
             <p class="quote" id="daily-quote-text">"{quote}"</p>
-            <p class="citation" id="daily-citation-text">— {citation}</p>
+            <p class="citation" id="daily-citation-text">{citation}</p>
         </div>
 
         <h1>God Is The Only Reality</h1>
@@ -119,30 +120,72 @@ const citation = match ? match[2] : "Paramahansa Yogananda";
         </div>
 
         <div class="daily-quote footer-quote">
-            <p class="quote">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
-            <p class="citation">— Shakespeare, The Tempest</p>
+            <p class="quote" id="hourly-quote-text">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
+            <p class="citation" id="hourly-citation-text">Shakespeare, The Tempest</p>
         </div>
     </div>
 
-    <script define:vars={{ fileContent }}>
-        // Runs immediately in the visitor's browser
+    <script define:vars={{ fileContent, quotesContent }}>
+        // --- 1. DAILY SPIRITUAL DIARY QUOTE ---
         const now = new Date();
-        
-        // Without 'timeZone' specified, this automatically uses the visitor's system timezone
         const options = { month: 'long', day: 'numeric' };
         const localTodayStr = new Intl.DateTimeFormat('en-US', options).format(now);
 
         const regex = new RegExp(`\\*\\s+${localTodayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
         const match = fileContent.match(regex);
 
-        // If a quote is found for their local day, overwrite the fallback Italian quote
         if (match) {
             const quoteEl = document.getElementById('daily-quote-text');
             const citationEl = document.getElementById('daily-citation-text');
             
             if(quoteEl && citationEl) {
                 quoteEl.textContent = `"${match[1]}"`;
-                citationEl.textContent = `— ${match[2]}`;
+                citationEl.textContent = match[2];
+            }
+        }
+
+        // --- 2. HOURLY RANDOM FOOTER QUOTE ---
+        // Split the imported text into separate blocks based on double (or more) newlines
+        const blocks = quotesContent.split(/\n\s*\n+/).map(b => b.trim()).filter(b => b.length > 0 && !b.startsWith('_'));
+        const quotesList = [];
+
+        // Parse each block to separate the quote from the citation
+        blocks.forEach(block => {
+            const blockMatch = block.match(/([\s\S]+?)\n[-—―]\s*(.*)/);
+            if (blockMatch) {
+                quotesList.push({
+                    quote: blockMatch[1].trim(),
+                    citation: blockMatch[2].trim()
+                });
+            }
+        });
+
+        if (quotesList.length > 0) {
+            const currentHour = Math.floor(Date.now() / 3600000);
+            
+            // Simple seeded random function to ensure the quote stays the same for the entire hour
+            const seededRandom = (seed) => {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            };
+
+            let idx = Math.floor(seededRandom(currentHour) * quotesList.length);
+            let prevIdx = Math.floor(seededRandom(currentHour - 1) * quotesList.length);
+
+            // Ensure the quote is never the same as the previous hour's quote
+            if (idx === prevIdx && quotesList.length > 1) {
+                idx = (idx + 1) % quotesList.length;
+            }
+
+            const selectedQuote = quotesList[idx];
+            const hourlyQuoteEl = document.getElementById('hourly-quote-text');
+            const hourlyCitationEl = document.getElementById('hourly-citation-text');
+
+            if (hourlyQuoteEl && hourlyCitationEl) {
+                // Ensure wrapping quotes if they aren't included in the raw text
+                const hasQuotes = selectedQuote.quote.startsWith('"') || selectedQuote.quote.startsWith('“');
+                hourlyQuoteEl.textContent = hasQuotes ? selectedQuote.quote : `"${selectedQuote.quote}"`;
+                hourlyCitationEl.textContent = selectedQuote.citation;
             }
         }
     </script>
