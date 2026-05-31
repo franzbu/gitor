@@ -3,12 +3,32 @@
 import rawHtml from '../../data/lawrence_presence.html?raw';
 
 export async function getStaticPaths() {
+  const summarySnippets = [
+    "Conversion and previous employment",
+    "Faith working by love",
+    "Difference between himself and others",
+    "Writes of himself as of a third person",
+    "Prayer for a sister who is about to make a vow",
+    "To a member of the order who had received from him",
+    "At the age of nearly fourscore",
+    "Enclosing a letter to a corresponding",
+    "Has difficulty, but sacrifices his will",
+    "To one who is in great pain",
+    "To the same correspondent probably",
+    "To the same he exhorts",
+    "Gratitude, for mercies",
+    "From his death-bed"
+  ];
+  const summaryRegex = new RegExp(`<p[^>]*>(?:(?!<\\/p>)[\\s\\S])*?(?:${summarySnippets.join('|')})(?:(?!<\\/p>)[\\s\\S])*?<\\/p>`, 'gi');
+
   // Remove the CONVERSATIONS and LETTERS section headers so they don't leak into the text body
-  // Also remove the page number markers (e.g., <p class="calibre5"><span class="calibre8">2</span></p>)
+  // Remove the page number markers (e.g., <p class="calibre5"><span class="calibre8">2</span></p>)
+  // Remove the specific summary texts at the start of conversations and letters
   let cleanHtml = rawHtml
     .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>CONVERSATIONS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
     .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>LETTERS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
-    .replace(/<p class="calibre5">\s*<span class="calibre8">\d+<\/span>\s*<\/p>/gi, '');
+    .replace(/<p class="calibre5">\s*<span class="calibre8">\d+<\/span>\s*<\/p>/gi, '')
+    .replace(summaryRegex, '');
 
   // Strict regex boundaries matching the exact HTML layout to cleanly split the book into its parts
   const markers = [
