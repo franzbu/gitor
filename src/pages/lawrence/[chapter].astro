@@ -1,0 +1,217 @@
+---
+// src/pages/lawrence/[chapter].astro
+import rawHtml from '../../data/lawrence_presence.html?raw';
+
+export async function getStaticPaths() {
+  // Remove the CONVERSATIONS and LETTERS section headers so they don't leak into the text body
+  // Also remove the page number markers (e.g., <p class="calibre5"><span class="calibre8">2</span></p>)
+  let cleanHtml = rawHtml
+    .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>CONVERSATIONS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
+    .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>LETTERS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
+    .replace(/<p class="calibre5">\s*<span class="calibre8">\d+<\/span>\s*<\/p>/gi, '');
+
+  // Strict regex boundaries matching the exact HTML layout to cleanly split the book into its parts
+  const markers = [
+    "PREFACE", "FIRST CONVERSATION", "SECOND CONVERSATION", "THIRD CONVERSATION", "FOURTH CONVERSATION",
+    "FIRST LETTER", "SECOND LETTER", "THIRD LETTER", "FOURTH LETTER", "FIFTH LETTER",
+    "SIXTH LETTER", "SEVENTH LETTER", "EIGHTH LETTER", "NINTH LETTER", "TENTH LETTER",
+    "ELEVENTH LETTER", "TWELFTH LETTER", "THIRTEENTH LETTER", "FOURTEENTH LETTER", "FIFTEENTH LETTER",
+    "Appendix A - The electronic edition."
+  ];
+  
+  const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const markerPattern = markers.map(escapeRegExp).join('|');
+  
+  // This accurately targets the specific heading structures (either <p> or <h2>) containing the bold titles
+  const splitRegex = new RegExp(`<(?:h2|p)[^>]*>(?:<span[^>]*>)?\\s*<b class="calibre12">\\s*(${markerPattern})\\s*<\\/b>\\s*(?:<\\/span>)?\\s*<\\/(?:h2|p)>`, 'i');
+
+  const parts = cleanHtml.split(splitRegex);
+
+  const chapterTitles = [
+    "Preface", "First Conversation", "Second Conversation", "Third Conversation", "Fourth Conversation",
+    "First Letter", "Second Letter", "Third Letter", "Fourth Letter", "Fifth Letter",
+    "Sixth Letter", "Seventh Letter", "Eighth Letter", "Ninth Letter", "Tenth Letter",
+    "Eleventh Letter", "Twelfth Letter", "Thirteenth Letter", "Fourteenth Letter", "Fifteenth Letter"
+  ];
+
+  return chapterTitles.map((title, index) => {
+    // Because split() retains the matched capture group, the actual text content is always at (index * 2) + 2
+    const contentIndex = index * 2 + 2;
+    let content = parts[contentIndex] || "Content missing.";
+
+    return {
+      params: { chapter: (index + 1).toString() },
+      props: {
+        chapterNumber: index + 1,
+        title,
+        content,
+        allTitles: chapterTitles
+      }
+    };
+  });
+}
+
+const { chapterNumber, title, content, allTitles } = Astro.props;
+const totalChapters = allTitles.length;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 4rem 2rem;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('/brother_lawrence.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: brightness(0.35) saturate(1.2) blur(3px);
+        }
+
+        .content-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 3.5rem;
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+        }
+
+        .navigation-header { 
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2.5rem; 
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 1.5rem; 
+            left: 1.5rem; 
+            z-index: 999;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            color: var(--text-main); text-decoration: none; font-size: 0.8rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem 1rem; border-radius: 100px; transition: all 0.2s;
+        }
+
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
+
+        h1 { color: var(--accent); text-align: center; margin-bottom: 2rem; font-size: 1.8rem; text-transform: uppercase; }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .text-body {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: rgba(243, 244, 246, 0.9);
+        }
+
+        /* Essential spacing classes injected natively by the HTML file */
+        .text-body .calibre12, .text-body .calibre18 { margin-bottom: 1.2rem; }
+        .text-body .italic { font-style: italic; }
+        .text-body .bold { font-weight: bold; }
+        .text-body .calibre11, .text-body .calibre6 { display: none; }
+        .text-body sup { font-size: 0.75rem; vertical-align: super; }
+        .text-body a { color: var(--accent); text-decoration: none; font-weight: bold; cursor: pointer;}
+        .text-body a:hover { text-decoration: underline; }
+        .text-body .calibre16 { margin-left: 1.5rem; font-style: italic; border-left: 2px solid var(--accent); padding-left: 1rem; }
+
+        .chapter-selector {
+            background: rgba(14, 14, 14, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main); padding: 0.5rem; border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            cursor: pointer; outline: none;
+            max-width: 60%;
+        }
+
+        .pagination-footer {
+            display: flex;
+            justify-content: space-between; margin-top: 4rem;
+            padding-top: 2rem; border-top: 1px solid rgba(214, 175, 55, 0.1);
+        }
+
+        .nav-link {
+            color: var(--text-main);
+            text-decoration: none; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; font-weight: 700; transition: color 0.2s;
+        }
+        .nav-link:hover { color: var(--accent); }
+
+        @media (max-width: 768px) { .content-container { padding: 2rem; } .chapter-selector { max-width: 50%; } }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <a href="/" class="back-btn">← Back</a>
+
+    <div class="content-container">
+        <div class="navigation-header">
+            <select class="chapter-selector" onchange="window.location.href='/lawrence/' + this.value">
+                {allTitles.map((t, idx) => (
+                    <option value={idx + 1} selected={idx + 1 === chapterNumber}>
+                        {t}
+                    </option>
+                ))}
+            </select>
+        </div>
+        
+        <h1 style={chapterNumber === 1 ? 'margin-bottom: 0.5rem;' : ''}>{title}</h1>
+        {chapterNumber === 1 && <p class="subtitle">Brother Lawrence</p>}
+        
+        <div class="text-body" set:html={content}></div>
+
+        <div class="pagination-footer">
+            {chapterNumber > 1 ?
+            (
+                <a href={`/lawrence/${chapterNumber - 1}`} class="nav-link">← Prev</a>
+            ) : <div />}
+            
+            {chapterNumber < totalChapters ?
+            (
+                <a href={`/lawrence/${chapterNumber + 1}`} class="nav-link">Next →</a>
+            ) : <div />}
+        </div>
+    </div>
+</body>
+</html>
