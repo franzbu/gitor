@@ -1,51 +1,23 @@
 ---
 // src/pages/lawrence/[chapter].astro
-import rawHtml from '../../data/lawrence_presence.html?raw';
+import rawText from '../../data/lawrence_presence.txt?raw';
 
 export async function getStaticPaths() {
-  const summarySnippets = [
-    "Conversion and previous employment",
-    "Faith working by love",
-    "Difference between himself and others",
-    "Writes of himself as of a third person",
-    "Prayer for a sister who is about to make a vow",
-    "To a member of the order who had received from him",
-    "At the age of nearly fourscore",
-    "Enclosing a letter to a corresponding",
-    "Has difficulty, but sacrifices his will",
-    "To one who is in great pain",
-    "To the same correspondent probably",
-    "To the same he exhorts",
-    "Gratitude, for mercies",
-    "From his death-bed"
-  ];
-  const summaryRegex = new RegExp(`<p[^>]*>(?:(?!<\\/p>)[\\s\\S])*?(?:${summarySnippets.join('|')})(?:(?!<\\/p>)[\\s\\S])*?<\\/p>`, 'gi');
-
-  // Remove the CONVERSATIONS and LETTERS section headers so they don't leak into the text body
-  // Remove the page number markers (e.g., <p class="calibre5"><span class="calibre8">2</span></p>)
-  // Remove the specific summary texts at the start of conversations and letters
-  let cleanHtml = rawHtml
-    .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>CONVERSATIONS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
-    .replace(/<h2[^>]*>\s*<span[^>]*>\s*<b[^>]*>LETTERS<\/b>\s*<\/span>\s*<\/h2>/gi, '')
-    .replace(/<p class="calibre5">\s*<span class="calibre8">\d+<\/span>\s*<\/p>/gi, '')
-    .replace(summaryRegex, '');
-
-  // Strict regex boundaries matching the exact HTML layout to cleanly split the book into its parts
+  // Use the exact headers with periods found in the plain text file
   const markers = [
-    "PREFACE", "FIRST CONVERSATION", "SECOND CONVERSATION", "THIRD CONVERSATION", "FOURTH CONVERSATION",
-    "FIRST LETTER", "SECOND LETTER", "THIRD LETTER", "FOURTH LETTER", "FIFTH LETTER",
-    "SIXTH LETTER", "SEVENTH LETTER", "EIGHTH LETTER", "NINTH LETTER", "TENTH LETTER",
-    "ELEVENTH LETTER", "TWELFTH LETTER", "THIRTEENTH LETTER", "FOURTEENTH LETTER", "FIFTEENTH LETTER",
-    "Appendix A - The electronic edition."
+    "PREFACE.", "FIRST CONVERSATION.", "SECOND CONVERSATION.", "THIRD CONVERSATION.", "FOURTH CONVERSATION.",
+    "FIRST LETTER.", "SECOND LETTER.", "THIRD LETTER.", "FOURTH LETTER.", "FIFTH LETTER.",
+    "SIXTH LETTER.", "SEVENTH LETTER.", "EIGHTH LETTER.", "NINTH LETTER.", "TENTH LETTER.",
+    "ELEVENTH LETTER.", "TWELFTH LETTER.", "THIRTEENTH LETTER.", "FOURTEENTH LETTER.", "FIFTEENTH LETTER."
   ];
   
   const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const markerPattern = markers.map(escapeRegExp).join('|');
   
-  // This accurately targets the specific heading structures (either <p> or <h2>) containing the bold titles
-  const splitRegex = new RegExp(`<(?:h2|p)[^>]*>(?:<span[^>]*>)?\\s*<b class="calibre12">\\s*(${markerPattern})\\s*<\\/b>\\s*(?:<\\/span>)?\\s*<\\/(?:h2|p)>`, 'i');
+  // This targets the specific headings sitting on their own lines in the raw text
+  const splitRegex = new RegExp(`(?:^|\\n)\\s*(${markerPattern})\\s*(?:\\n|$)`, 'i');
 
-  const parts = cleanHtml.split(splitRegex);
+  const parts = rawText.split(splitRegex);
 
   const chapterTitles = [
     "Preface", "First Conversation", "Second Conversation", "Third Conversation", "Fourth Conversation",
@@ -57,7 +29,14 @@ export async function getStaticPaths() {
   return chapterTitles.map((title, index) => {
     // Because split() retains the matched capture group, the actual text content is always at (index * 2) + 2
     const contentIndex = index * 2 + 2;
-    let content = parts[contentIndex] || "Content missing.";
+    let rawContent = parts[contentIndex] || "Content missing.";
+
+    // Convert the plain text blocks into clean HTML paragraphs
+    let content = rawContent
+      .trim()
+      .split(/\r?\n\s*\r?\n/) // Split the text anywhere there is a double line break
+      .map(p => `<p style="margin-bottom: 1.2rem;">${p.trim().replace(/\r?\n/g, ' ')}</p>`) // Wrap in <p> tags and collapse single line breaks into spaces
+      .join('');
 
     return {
       params: { chapter: (index + 1).toString() },
@@ -166,15 +145,9 @@ const totalChapters = allTitles.length;
             color: rgba(243, 244, 246, 0.9);
         }
 
-        /* Essential spacing classes injected natively by the HTML file */
-        .text-body .calibre12, .text-body .calibre18 { margin-bottom: 1.2rem; }
-        .text-body .italic { font-style: italic; }
-        .text-body .bold { font-weight: bold; }
-        .text-body .calibre11, .text-body .calibre6 { display: none; }
-        .text-body sup { font-size: 0.75rem; vertical-align: super; }
+        /* The text-body formatting classes were removed because plain text doesn't contain calibre classes */
         .text-body a { color: var(--accent); text-decoration: none; font-weight: bold; cursor: pointer;}
         .text-body a:hover { text-decoration: underline; }
-        .text-body .calibre16 { margin-left: 1.5rem; font-style: italic; border-left: 2px solid var(--accent); padding-left: 1rem; }
 
         .chapter-selector {
             background: rgba(14, 14, 14, 0.8);
@@ -217,7 +190,7 @@ const totalChapters = allTitles.length;
         </div>
         
         <h1 style={chapterNumber === 1 ? 'margin-bottom: 0.5rem;' : ''}>{title}</h1>
-        {chapterNumber === 1 && <p class="subtitle">Brother Lawrence</p>}
+        {chapterNumber === 1 && <p class="subtitle">to Brother Lawrence's <i>The Practice of the Presence of God</i></p>}
         
         <div class="text-body" set:html={content}></div>
 
