@@ -1,18 +1,18 @@
 ---
-// src/pages/yogi/[chapter].astro
-import rawHtml from '../../data/yogi.html?raw';
+// src/pages/autobiography/[chapter].astro
+import rawHtml from '../../data/autobiography_of_a_yogi/yogi.html?raw';
 
 export async function getStaticPaths() {
-  // Remove all images and their direct captions 
-  let noImagesHtml = rawHtml.replace(/<div class="calibre3">\s*<img[^>]*>\s*<\/div>(?:\s*<div class="calibre(?:11|14|6)">[\s\S]*?<\/div>|\s*<div class="calibre18">\s*<\/div>)*/gi, '');
+  // Ensure images point to the absolute path in the public folder (resilient to quote types)
+  let processedHtml = rawHtml.replace(/src=["']images\//gi, 'src="/autobiography_images/');
 
-  // Extract all footnotes from the bottom of the book so we can inject them invisibly for the popup to read
-  const footnotesRegex = /<div class="calibre12">\s*<div class="calibre17">\s*<a id="calibre_link-\d+" href="#calibre_link-\d+" class="calibre9">\d+<\/a>[\s\S]*?<\/div>\s*<\/div>/gi;
-  const allFootnotesMatches = [...noImagesHtml.matchAll(footnotesRegex)];
+  // Extract all footnotes strictly up to their closing comment, ignoring nested divs
+  const footnotesRegex = /<div[^>]*class=["']bookfn["'][^>]*>[\s\S]*?<!--end of class=["']bookfn["']-->/gi;
+  const allFootnotesMatches = [...processedHtml.matchAll(footnotesRegex)];
   const allFootnotesHtml = allFootnotesMatches.map(m => m[0]).join('\n');
 
-  // Split into chapters by the strict CHAPTER heading structure inside the HTML
-  const chapterParts = noImagesHtml.split(/<div class="calibre10">\s*<span class="calibre4">\s*<span class="bold">\s*CHAPTER(?:[^<]*|<\/?span[^>]*>)*<\/div>/i);
+  // Split into chapters by the strict <div class="chapter"> heading structure
+  const chapterParts = processedHtml.split(/<div[^>]*class=["']chapter["'][^>]*>/i);
   
   // The first part is front-matter. Chapters are exactly indices 1 through 48.
   const rawChapters = chapterParts.slice(1, 49);
@@ -42,23 +42,19 @@ export async function getStaticPaths() {
 
   return chapterTitles.map((title, index) => {
     const chapterNumber = index + 1;
-    let content = rawChapters[index] || "Chapter content missing.";
+    let content = rawChapters[index] || "";
 
-    // Remove the repeated chapter title bleeding into the text body
-    content = content.replace(/^[\s\S]*?(?=<div class="calibre(?:18|12)">)/i, '');
+    // Safely remove ONLY the specific redundant chapnumber and chaptitle divs
+    content = content.replace(/<div[^>]*class=["']chapnumber["'][^>]*>[\s\S]*?<!--end of class=["']chapnumber["']-->/gi, '');
+    content = content.replace(/<div[^>]*class=["']chaptitle["'][^>]*>[\s\S]*?<!--end of class=["']chaptitle["']-->/gi, '');
+    
+    // Remove the footnotes from the bottom of the page text (they are safely stored in allFootnotesHtml for the modal)
+    content = content.replace(/<div[^>]*class=["']bookfn["'][^>]*>[\s\S]*?<!--end of class=["']bookfn["']-->/gi, '');
 
-    // For chapter 48, truncate exactly after the final paragraph you specified
-    if (chapterNumber === 48) {
-        const endPhrase = "overcoming of all human misery";
-        const phraseIndex = content.indexOf(endPhrase);
-        if (phraseIndex !== -1) {
-            // Find the closing tag of that paragraph so the HTML remains perfectly valid
-            const closeDivIndex = content.indexOf('</div>', phraseIndex);
-            if (closeDivIndex !== -1) {
-                // Slices off everything after this paragraph (Index, Notes, visible Footnotes)
-                content = content.substring(0, closeDivIndex + 6);
-            }
-        }
+    // Safely truncate at the end of the chapter to remove trailing HTML and Chapter 48's backmatter
+    const endMatch = content.match(/<\/div>\s*<!--end of class=["']chapter["']-->/i);
+    if (endMatch) {
+      content = content.substring(0, endMatch.index);
     }
 
     return {
@@ -132,7 +128,7 @@ const totalChapters = allTitles.length;
 
         .navigation-header { 
             display: flex;
-            justify-content: flex-end; /* Adjusted to keep the select dropdown on the right */
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 2.5rem; 
         }
@@ -150,13 +146,10 @@ const totalChapters = allTitles.length;
             padding: 0.5rem 1rem; border-radius: 100px; transition: all 0.2s;
         }
 
-        .back-btn:hover { background: rgba(255, 255, 255, 0.1);
-            border-color: var(--accent); }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
 
-        h1 { color: var(--accent); text-align: center; margin-bottom: 2rem; font-size: 1.8rem;
-            text-transform: uppercase; }
+        h1 { color: var(--accent); text-align: center; margin-bottom: 2rem; font-size: 1.8rem; text-transform: uppercase; }
         
-        /* NEW: Added subtitle class matching your other files */
         .subtitle {
             text-align: center;
             color: #888;
@@ -171,23 +164,18 @@ const totalChapters = allTitles.length;
             color: rgba(243, 244, 246, 0.9);
         }
 
-        /* Essential spacing classes injected natively by the HTML file */
-        .text-body .calibre12, .text-body .calibre18 { margin-bottom: 1.2rem;
-        }
-        .text-body .italic { font-style: italic;
-        }
-        .text-body .bold { font-weight: bold;
-        }
-        .text-body .calibre11, .text-body .calibre6 { display: none;
-        }
-        .text-body sup { font-size: 0.75rem; vertical-align: super;
-        }
-        .text-body a { color: var(--accent); text-decoration: none; font-weight: bold;
-            cursor: pointer;}
-        .text-body a:hover { text-decoration: underline;
-        }
-        .text-body .calibre16 { margin-left: 1.5rem; font-style: italic; border-left: 2px solid var(--accent);
-            padding-left: 1rem; }
+        .text-body p { margin-bottom: 1.2rem; }
+        .text-body .italic, .text-body i { font-style: italic; }
+        .text-body .bold, .text-body b { font-weight: bold; }
+        .text-body sup { font-size: 0.75rem; vertical-align: super; }
+        
+        /* Inline images scaling and styling */
+        .text-body .blockgraphic { text-align: center; margin: 2.5rem 0; }
+        .text-body img { max-width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
+        .text-body .left { text-align: left; margin-top: 0.8rem; font-size: 0.9rem; color: #aaa; }
+
+        .text-body a { color: var(--accent); text-decoration: none; font-weight: bold; cursor: pointer;}
+        .text-body a:hover { text-decoration: underline; }
 
         .chapter-selector {
             background: rgba(14, 14, 14, 0.8);
@@ -209,8 +197,7 @@ const totalChapters = allTitles.length;
             text-decoration: none; font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem; font-weight: 700; transition: color 0.2s;
         }
-        .nav-link:hover { color: var(--accent);
-        }
+        .nav-link:hover { color: var(--accent); }
 
         /* Footnote UI Structure */
         .footnote-modal {
@@ -221,11 +208,9 @@ const totalChapters = allTitles.length;
             border-radius: 1rem; padding: 2rem;
             max-width: 600px; width: 90%; box-shadow: 0 24px 50px rgba(0,0,0,0.9);
             z-index: 1000; text-align: left;
-            max-height: 80vh; /* Limits height to 80% of viewport */
-            overflow-y: auto; /* Enables vertical scrolling within the modal */
+            max-height: 80vh; overflow-y: auto;
         }
-        .footnote-modal.active { display: block;
-        }
+        .footnote-modal.active { display: block; }
         .footnote-close {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -234,11 +219,9 @@ const totalChapters = allTitles.length;
             font-size: 0.8rem;
             margin-top: 1.5rem; display: inline-block; transition: all 0.2s;
         }
-        .footnote-close:hover { border-color: var(--accent);
-        }
+        .footnote-close:hover { border-color: var(--accent); }
 
-        @media (max-width: 768px) { .content-container { padding: 2rem;
-        } .chapter-selector { max-width: 50%; } }
+        @media (max-width: 768px) { .content-container { padding: 2rem; } .chapter-selector { max-width: 50%; } }
     </style>
 </head>
 <body>
@@ -248,18 +231,16 @@ const totalChapters = allTitles.length;
 
     <div class="content-container">
         <div class="navigation-header">
-            <select class="chapter-selector" onchange="window.location.href='/yogi/' + this.value">
+            <select class="chapter-selector" onchange="window.location.href='/autobiography/' + this.value">
                 {allTitles.map((t, idx) => (
-                    <option value={idx + 1} selected={idx 
-                        + 1 === chapterNumber}>
+                    <option value={idx + 1} selected={idx + 1 === chapterNumber}>
                         {t}
                     </option>
                 ))}
             </select>
         </div>
         
-        <h1 
-            style={chapterNumber === 1 ? 'margin-bottom: 0.5rem;' : ''}>{title}</h1>
+        <h1 style={chapterNumber === 1 ? 'margin-bottom: 0.5rem;' : ''}>{title}</h1>
         {chapterNumber === 1 && <p class="subtitle">Paramahansa Yogananda</p>}
         
         <div class="text-body" set:html={content}></div>
@@ -267,12 +248,12 @@ const totalChapters = allTitles.length;
         <div class="pagination-footer">
             {chapterNumber > 1 ?
             (
-                <a href={`/yogi/${chapterNumber - 1}`} class="nav-link">← Prev</a>
+                <a href={`/autobiography/${chapterNumber - 1}`} class="nav-link">← Prev</a>
             ) : <div />}
             
             {chapterNumber < totalChapters ?
             (
-                <a href={`/yogi/${chapterNumber + 1}`} class="nav-link">Next →</a>
+                <a href={`/autobiography/${chapterNumber + 1}`} class="nav-link">Next →</a>
             ) : <div />}
         </div>
     </div>
@@ -282,55 +263,67 @@ const totalChapters = allTitles.length;
         <button class="footnote-close" id="close-footnote">← Back to Text</button>
     </div>
 
-    <div id="all-footnotes-container" style="display: none;"
-        set:html={allFootnotesHtml}></div>
+    <div id="all-footnotes-container" style="display: none;" set:html={allFootnotesHtml}></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('footnote-modal');
 
             // Listen for clicks on the superscript footnote links
-            document.querySelectorAll('a.calibre9').forEach(link => {
-                if(link.querySelector('sup')) {
-                   
+            document.querySelectorAll('.text-body a').forEach(link => {
+                const href = link.getAttribute('href');
+                // Target the new #FN... link IDs
+                if(href && href.startsWith('#FN')) {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const targetId = link.getAttribute('href').substring(1);
+                        const targetId = href.substring(1);
                         const footnoteEl = document.getElementById(targetId);
                   
                         if (footnoteEl) {
+                            // Start with the paragraph containing the footnote link
+                            let contentHtml = footnoteEl.parentElement.outerHTML;
+                            let nextNode = footnoteEl.parentElement.nextElementSibling;
+                            
+                            // Continue grabbing the next elements (like the poem div or continued paragraphs)
+                            // until we hit the start of the next footnote or run out of elements in the block
+                            while (nextNode && !nextNode.querySelector('a[id^="FN"]')) {
+                                contentHtml += nextNode.outerHTML;
+                                nextNode = nextNode.nextElementSibling;
+                            }
+
                             // Extract the text and show the modal
-                            document.getElementById('footnote-content').innerHTML = footnoteEl.parentElement.innerHTML;
-                           
+                            document.getElementById('footnote-content').innerHTML = contentHtml;
                             modal.classList.add('active');
                         }
                     });
                 }
             });
+
             // Close modal button
             document.getElementById('close-footnote').addEventListener('click', () => {
                 modal.classList.remove('active');
             });
+            
             // If the user clicks the number *inside* the modal, just close the modal instead of scrolling
             document.getElementById('footnote-content').addEventListener('click', (e) => {
                 if(e.target.tagName === 'A') {
                     e.preventDefault();
                     modal.classList.remove('active');
-          
                 }
             });
+            
             // Close on Esc key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
                 }
             });
+            
             // Close on clicking/tapping outside the modal
             document.addEventListener('click', (e) => {
                 if (modal.classList.contains('active') && 
                     !modal.contains(e.target) && 
-                    !e.target.closest('a.calibre9')) {
-                 
+                    !(e.target.tagName === 'SUP' || (e.target.tagName === 'A' && e.target.getAttribute('href')?.startsWith('#FN')))) {
                     modal.classList.remove('active');
                 }
             });
