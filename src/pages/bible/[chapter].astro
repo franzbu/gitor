@@ -1,0 +1,237 @@
+---
+// src/pages/bible/[chapter].astro
+import rawText from '../../data/bible.txt?raw';
+
+export async function getStaticPaths() {
+  const markers = [
+    "The First Book of Moses: Called Genesis", "The Second Book of Moses: Called Exodus", 
+    "The Third Book of Moses: Called Leviticus", "The Fourth Book of Moses: Called Numbers", 
+    "The Fifth Book of Moses: Called Deuteronomy", "The Book of Joshua", "The Book of Judges", 
+    "The Book of Ruth", "The First Book of Samuel", "The Second Book of Samuel", 
+    "The First Book of the Kings", "The Second Book of the Kings", 
+    "The First Book of the Chronicles", "The Second Book of the Chronicles", 
+    "Ezra", "The Book of Nehemiah", "The Book of Esther", "The Book of Job", 
+    "The Book of Psalms", "The Proverbs", "Ecclesiastes", "The Song of Solomon", 
+    "The Book of the Prophet Isaiah", "The Book of the Prophet Jeremiah", 
+    "The Lamentations of Jeremiah", "The Book of the Prophet Ezekiel", 
+    "The Book of Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", 
+    "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi",
+    "The Gospel According to Saint Matthew", "The Gospel According to Saint Mark", 
+    "The Gospel According to Saint Luke", "The Gospel According to Saint John", 
+    "The Acts of the Apostles", "The Epistle of Paul the Apostle to the Romans", 
+    "The First Epistle of Paul the Apostle to the Corinthians", 
+    "The Second Epistle of Paul the Apostle to the Corinthians", 
+    "The Epistle of Paul the Apostle to the Galatians", 
+    "The Epistle of Paul the Apostle to the Ephesians", 
+    "The Epistle of Paul the Apostle to the Philippians", 
+    "The Epistle of Paul the Apostle to the Colossians", 
+    "The First Epistle of Paul the Apostle to the Thessalonians", 
+    "The Second Epistle of Paul the Apostle to the Thessalonians", 
+    "The First Epistle of Paul the Apostle to Timothy", 
+    "The Second Epistle of Paul the Apostle to Timothy", 
+    "The Epistle of Paul the Apostle to Titus", 
+    "The Epistle of Paul the Apostle to Philemon", 
+    "The Epistle of Paul the Apostle to the Hebrews", "The General Epistle of James", 
+    "The First Epistle General of Peter", "The Second General Epistle of Peter", 
+    "The First Epistle General of John", "The Second Epistle General of John", 
+    "The Third Epistle General of John", "The General Epistle of Jude", 
+    "The Revelation of Saint John the Divine"
+  ];
+  
+  const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const markerPattern = markers.map(escapeRegExp).join('|');
+  
+  // Skip the Table of Contents at the beginning of the file so we don't chop early
+  const startIndex = rawText.lastIndexOf("The Old Testament of the King James Version of the Bible");
+  const actualText = startIndex !== -1 ? rawText.slice(startIndex) : rawText;
+
+  // This targets the specific headings sitting on their own lines in the raw text
+  const splitRegex = new RegExp(`(?:^|\\n)\\s*(${markerPattern})\\s*(?:\\n|$)`, 'i');
+
+  const parts = actualText.split(splitRegex);
+
+  return markers.map((title, index) => {
+    // Because split() retains the matched capture group, the actual text content is always at (index * 2) + 2
+    const contentIndex = index * 2 + 2;
+    let rawContent = parts[contentIndex] || "Content missing.";
+
+    // Convert the plain text blocks into clean HTML paragraphs
+    let content = rawContent
+      .trim()
+      .split(/\r?\n\s*\r?\n/) // Split the text anywhere there is a double line break
+      .map(p => {
+        let lines = p.trim().split(/\r?\n/);
+        // Render normally collapsing remaining single line breaks into spaces
+        return `<p style="margin-top: 0; margin-bottom: 1.2rem;">${lines.join(' ')}</p>`;
+      })
+      .join('\n');
+
+    return {
+      params: { chapter: (index + 1).toString() },
+      props: {
+        chapterNumber: index + 1,
+        title,
+        content,
+        allTitles: markers
+      }
+    };
+  });
+}
+
+const { chapterNumber, title, content, allTitles } = Astro.props;
+const totalChapters = allTitles.length;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
+    
+    <style is:global>
+        :root {
+            --bg: #030303;
+            --text-main: #f3f4f6;
+            --accent: #ca9f1b;
+            --card-bg: rgba(14, 14, 14, 0.75);
+            --card-border: rgba(214, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 4rem 2rem;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('/bible_bg.webp');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: brightness(0.35) saturate(1.2) blur(3px);
+        }
+
+        .content-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 3.5rem;
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 24px 50px rgba(0,0,0,0.8);
+        }
+
+        .navigation-header { 
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2.5rem; 
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 1.5rem; 
+            left: 1.5rem; 
+            z-index: 999;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            color: var(--text-main); text-decoration: none; font-size: 0.8rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem 1rem; border-radius: 100px; transition: all 0.2s;
+        }
+
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--accent); }
+
+        h1 { color: var(--accent); text-align: center; margin-bottom: 2rem; font-size: 1.8rem; text-transform: uppercase; }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .text-body {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: rgba(243, 244, 246, 0.9);
+        }
+
+        .text-body a { color: var(--accent); text-decoration: none; font-weight: bold; cursor: pointer;}
+        .text-body a:hover { text-decoration: underline; }
+
+        .chapter-selector {
+            background: rgba(14, 14, 14, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main); padding: 0.5rem; border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            cursor: pointer; outline: none;
+            max-width: 60%;
+        }
+
+        .pagination-footer {
+            display: flex;
+            justify-content: space-between; margin-top: 4rem;
+            padding-top: 2rem; border-top: 1px solid rgba(214, 175, 55, 0.1);
+        }
+
+        .nav-link {
+            color: var(--text-main);
+            text-decoration: none; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; font-weight: 700; transition: color 0.2s;
+        }
+        .nav-link:hover { color: var(--accent); }
+
+        @media (max-width: 768px) { .content-container { padding: 2rem; } .chapter-selector { max-width: 50%; } }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <a href="/" class="back-btn">← Back</a>
+
+    <div class="content-container">
+        <div class="navigation-header">
+            <select class="chapter-selector" onchange="window.location.href='/bible/' + this.value">
+                {allTitles.map((t, idx) => (
+                    <option value={idx + 1} selected={idx + 1 === chapterNumber}>
+                        {t}
+                    </option>
+                ))}
+            </select>
+        </div>
+        
+        <h1 style={chapterNumber === 1 ? 'margin-bottom: 0.5rem;' : ''}>{title}</h1>
+        {chapterNumber === 1 && <p class="subtitle">King James Bible</p>}
+        
+        <div class="text-body" set:html={content}></div>
+
+        <div class="pagination-footer">
+            {chapterNumber > 1 ?
+            (
+                <a href={`/bible/${chapterNumber - 1}`} class="nav-link">← Prev</a>
+            ) : <div />}
+            
+            {chapterNumber < totalChapters ?
+            (
+                <a href={`/bible/${chapterNumber + 1}`} class="nav-link">Next →</a>
+            ) : <div />}
+        </div>
+    </div>
+</body>
+</html>
