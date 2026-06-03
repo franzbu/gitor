@@ -58,17 +58,22 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             pointer-events: none;
         }
 
-        .container { text-align: center; padding: 2rem; }
+        .container { text-align: center; padding: 2rem;
+        }
 
         /* Quote Styles */
-        .daily-quote { margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .daily-quote { margin-bottom: 2rem;
+        max-width: 700px; margin-left: auto; margin-right: auto; }
         
         /* white-space: pre-wrap added here to respect empty lines in quotes */
-        .quote { font-style: italic; font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; white-space: pre-wrap; }
-        .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+        .quote { font-style: italic;
+        font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; white-space: pre-wrap;
+        }
+        .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+        }
 
         h1 { 
-            font-size: 3.5rem; 
+            font-size: 3.5rem;
             margin: 3.5rem 0; /* Addressed spacing: more room before and after */
             background: linear-gradient(to right, var(--text-main) 50%, var(--accent));
             -webkit-background-clip: text; 
@@ -77,7 +82,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             letter-spacing: -0.02em;
         }
 
-        .nav-grid { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .nav-grid { display: flex;
+        gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
 
         .link-card {
             display: inline-flex;
@@ -103,7 +109,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         }
 
         /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
-        .footer-quote { margin-top: 20rem; margin-bottom: 0; }
+        .footer-quote { margin-top: 20rem;
+        margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -155,7 +162,6 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         // --- 2. HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
         if (totalQuotes > 0) {
             const currentHour = Math.floor(Date.now() / 3600000);
-            
             // Simple seeded random function to ensure the quote stays the same for the entire hour
             const seededRandom = (seed) => {
                 const x = Math.sin(seed) * 10000;
@@ -164,7 +170,6 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
 
             let idx = Math.floor(seededRandom(currentHour) * totalQuotes);
             let prevIdx = Math.floor(seededRandom(currentHour - 1) * totalQuotes);
-
             // Ensure the quote is never the same as the previous hour's quote
             if (idx === prevIdx && totalQuotes > 1) {
                 idx = (idx + 1) % totalQuotes;
@@ -192,6 +197,13 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                 })
                 .catch(error => console.error('Error fetching quote:', error));
         }
+
+        // --- 3. AUTO-REFRESH AT THE TOP OF THE HOUR ---
+        // Add a 1-second (1000ms) safety buffer to guarantee the clock has completely rolled over
+        const msUntilNextHour = 3600000 - (Date.now() % 3600000) + 1000;
+        setTimeout(() => {
+            window.location.reload();
+        }, msUntilNextHour);
     </script>
 </body>
 </html>
