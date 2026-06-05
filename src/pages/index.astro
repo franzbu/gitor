@@ -159,23 +159,44 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             }
         }
 
-        // --- 2. HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
+        // --- 2. 6-HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
         if (totalQuotes > 0) {
-            const currentHour = Math.floor(Date.now() / 3600000);
-            // Simple seeded random function to ensure the quote stays the same for the entire hour
+            // Function to generate a unique integer seed for the current 6-hour block in Rome time
+            const getRomeBlock = (timestamp) => {
+                const parts = new Intl.DateTimeFormat('en-US', { 
+                    timeZone: 'Europe/Rome', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hourCycle: 'h23' 
+                }).formatToParts(new Date(timestamp));
+                
+                let y, m, d, h;
+                for (const p of parts) {
+                    if (p.type === 'year') y = p.value;
+                    if (p.type === 'month') m = p.value;
+                    if (p.type === 'day') d = p.value;
+                    if (p.type === 'hour') h = parseInt(p.value, 10);
+                }
+                const block = Math.floor(h / 6); // Gives 0, 1, 2, or 3
+                return parseInt(`${y}${m.padStart(2, '0')}${d.padStart(2, '0')}${block}`);
+            };
+
+            const nowMs = Date.now();
+            const currentPeriod = getRomeBlock(nowMs);
+            const prevPeriod = getRomeBlock(nowMs - (6 * 3600000)); // 6 hours ago
+
+            // Simple seeded random function
             const seededRandom = (seed) => {
                 const x = Math.sin(seed) * 10000;
                 return x - Math.floor(x);
             };
 
-            let idx = Math.floor(seededRandom(currentHour) * totalQuotes);
-            let prevIdx = Math.floor(seededRandom(currentHour - 1) * totalQuotes);
-            // Ensure the quote is never the same as the previous hour's quote
+            let idx = Math.floor(seededRandom(currentPeriod) * totalQuotes);
+            let prevIdx = Math.floor(seededRandom(prevPeriod) * totalQuotes);
+            
+            // Ensure the quote is never the same as the previous 6-hour block's quote
             if (idx === prevIdx && totalQuotes > 1) {
                 idx = (idx + 1) % totalQuotes;
             }
 
-            // Fetch ONLY the specific quote fragment needed for this hour
+            // Fetch ONLY the specific quote fragment needed for this 6-hour block
             fetch(`/quotes/quote-${idx}.txt`)
                 .then(response => response.text())
                 .then(text => {
@@ -188,7 +209,6 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                         const hourlyCitationEl = document.getElementById('hourly-citation-text');
 
                         if (hourlyQuoteEl && hourlyCitationEl) {
-                            // Ensure wrapping quotes if they aren't included in the raw text
                             const hasQuotes = rawQuote.startsWith('"') || rawQuote.startsWith('“');
                             hourlyQuoteEl.textContent = hasQuotes ? rawQuote : `"${rawQuote}"`;
                             hourlyCitationEl.textContent = rawCitation;
@@ -198,12 +218,25 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                 .catch(error => console.error('Error fetching quote:', error));
         }
 
-        // --- 3. AUTO-REFRESH AT THE TOP OF THE HOUR ---
-        // Add a 1-second (1000ms) safety buffer to guarantee the clock has completely rolled over
-        const msUntilNextHour = 3600000 - (Date.now() % 3600000) + 1000;
+        // --- 3. AUTO-REFRESH AT THE NEXT 6-HOUR MARK (Rome Time) ---
+        // Calculate the exact milliseconds remaining until the next 00:00, 06:00, 12:00, or 18:00 in Rome
+        const timeParts = new Intl.DateTimeFormat('en-US', { 
+            timeZone: 'Europe/Rome', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23' 
+        }).formatToParts(new Date());
+        
+        let rH = 0, rM = 0, rS = 0;
+        for (const p of timeParts) {
+            if (p.type === 'hour') rH = parseInt(p.value, 10);
+            if (p.type === 'minute') rM = parseInt(p.value, 10);
+            if (p.type === 'second') rS = parseInt(p.value, 10);
+        }
+
+        const msIntoBlock = ((rH % 6) * 3600000) + (rM * 60000) + (rS * 1000) + new Date().getMilliseconds();
+        const msUntilNextBlock = (6 * 3600000) - msIntoBlock + 1000; // Add 1s safety buffer
+        
         setTimeout(() => {
             window.location.reload();
-        }, msUntilNextHour);
+        }, msUntilNextBlock);
     </script>
 </body>
 </html>
