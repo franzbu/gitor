@@ -9,6 +9,7 @@ const todayStr = new Intl.DateTimeFormat('en-US', options).format(new Date());
 
 const regex = new RegExp(`\\*\\s+${todayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
 const match = fileContent.match(regex);
+
 const quote = match ? match[1] : "Begin each day with a heart full of gratitude.";
 const citation = match ? match[2] : "Paramahansa Yogananda";
 
@@ -57,14 +58,19 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             pointer-events: none;
         }
 
-        .container { text-align: center; padding: 2rem; }
+        .container { text-align: center; padding: 2rem;
+        }
 
         /* Quote Styles */
-        .daily-quote { margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .daily-quote { margin-bottom: 2rem;
+        max-width: 700px; margin-left: auto; margin-right: auto; }
         
         /* white-space: pre-wrap added here to respect empty lines in quotes */
-        .quote { font-style: italic; font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; white-space: pre-wrap; }
-        .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+        .quote { font-style: italic;
+        font-size: 1.3rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.75rem; white-space: pre-wrap;
+        }
+        .citation { font-size: 0.85rem; color: #888; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+        }
 
         h1 { 
             font-size: 3.5rem;
@@ -76,7 +82,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             letter-spacing: -0.02em;
         }
 
-        .nav-grid { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .nav-grid { display: flex;
+        gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
 
         .link-card {
             display: inline-flex;
@@ -102,7 +109,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         }
 
         /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
-        .footer-quote { margin-top: 20rem; margin-bottom: 0; }
+        .footer-quote { margin-top: 20rem;
+        margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -117,25 +125,25 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         <div class="nav-grid">
             <a href="/autobiography/1" class="link-card">Autobiography of a Yogi</a>
             <a href="/gita/2/" class="link-card">Bhagavad Gita</a>
-            <a href="/bible/1/" class="link-card">Bible (KJV)</a>
+            <a href="/bible/1/" class="link-card">Bible - King James Version</a>
             <a href="/lawrence/2/" class="link-card">The Practice of the Presence of God</a>
+            <a href="/plato_allegory" class="link-card">Allegory of the Cave</a>
             <a href="/samadhi" class="link-card">Samadhi</a>
             <a href="/friendship" class="link-card">Friendship</a>
             <a href="/gitanjali" class="link-card">Gitanjali</a>
-            <a href="/plato_allegory" class="link-card">Allegory of the Cave</a>
             <a href="/you" class="link-card">You</a>
         </div>
 
         <div class="daily-quote footer-quote">
-            <p class="quote" id="hourly-quote-text"></p>
-            <p class="citation" id="hourly-citation-text"></p>
+            <p class="quote" id="hourly-quote-text">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
+            <p class="citation" id="hourly-citation-text">Shakespeare, The Tempest</p>
         </div>
     </div>
 
     <script define:vars={{ fileContent, totalQuotes }}>
         // --- 1. DAILY SPIRITUAL DIARY QUOTE ---
         const now = new Date();
-        const options = { month: 'long', day: 'numeric' };
+        const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
         const localTodayStr = new Intl.DateTimeFormat('en-US', options).format(now);
 
         const regex = new RegExp(`\\*\\s+${localTodayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
@@ -158,6 +166,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                 const parts = new Intl.DateTimeFormat('en-US', { 
                     timeZone: 'Europe/Rome', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hourCycle: 'h23' 
                 }).formatToParts(new Date(timestamp));
+                
                 let y, m, d, h;
                 for (const p of parts) {
                     if (p.type === 'year') y = p.value;
@@ -180,17 +189,16 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             };
 
             let idx = Math.floor(seededRandom(currentPeriod) * totalQuotes);
-            let prevIdx = Math.floor(seededRandom(prevPeriod) * totalQuotes); // Ensure the quote is never the same as the previous 6-hour block's quote
+            let prevIdx = Math.floor(seededRandom(prevPeriod) * totalQuotes);
+            
+            // Ensure the quote is never the same as the previous 6-hour block's quote
             if (idx === prevIdx && totalQuotes > 1) {
                 idx = (idx + 1) % totalQuotes;
             }
 
             // Fetch ONLY the specific quote fragment needed for this 6-hour block
             fetch(`/quotes/quote-${idx}.txt`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Quote file not found');
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(text => {
                     const blockMatch = text.match(/([\s\S]+?)\n[-—―]\s*(.*)/);
                     if (blockMatch) {
@@ -207,16 +215,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                         }
                     }
                 })
-                .catch(error => {
-                    console.error('Error fetching quote:', error);
-                    // Fallback to ensure the footer is never left blank on a failed fetch
-                    const hourlyQuoteEl = document.getElementById('hourly-quote-text');
-                    const hourlyCitationEl = document.getElementById('hourly-citation-text');
-                    if (hourlyQuoteEl && hourlyCitationEl) {
-                        hourlyQuoteEl.textContent = '"We are such stuff as dreams are made on; and our little life is rounded with a sleep."';
-                        hourlyCitationEl.textContent = 'Shakespeare, The Tempest';
-                    }
-                });
+                .catch(error => console.error('Error fetching quote:', error));
         }
 
         // --- 3. AUTO-REFRESH AT THE NEXT 6-HOUR MARK (Rome Time) ---
@@ -233,16 +232,11 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         }
 
         const msIntoBlock = ((rH % 6) * 3600000) + (rM * 60000) + (rS * 1000) + new Date().getMilliseconds();
+        const msUntilNextBlock = (6 * 3600000) - msIntoBlock + 1000; // Add 1s safety buffer
         
-        // Calculate the absolute timestamp of the next refresh (+1s safety buffer)
-        const targetRefreshTime = Date.now() + ((6 * 3600000) - msIntoBlock + 1000);
-        
-        // Check every 10 seconds if the actual clock has passed the target time
-        setInterval(() => {
-            if (Date.now() >= targetRefreshTime) {
-                window.location.reload();
-            }
-        }, 10000);
+        setTimeout(() => {
+            window.location.reload();
+        }, msUntilNextBlock);
     </script>
 </body>
 </html>
