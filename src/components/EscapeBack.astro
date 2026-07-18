@@ -1,8 +1,25 @@
 <script>
     let isNavigatingBack = false;
+    let ignoreNextEscapeKeyup = false;
 
     const navigateBack = (event: KeyboardEvent) => {
         if (event.key !== 'Escape' || isNavigatingBack) {
+            return;
+        }
+
+        if (event.type === 'keyup' && ignoreNextEscapeKeyup) {
+            ignoreNextEscapeKeyup = false;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        const footnoteModal = document.getElementById('footnote-modal');
+        if (footnoteModal?.classList.contains('active')) {
+            ignoreNextEscapeKeyup = event.type === 'keydown';
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            footnoteModal.classList.remove('active');
             return;
         }
 
