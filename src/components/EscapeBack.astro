@@ -1,0 +1,22 @@
+<script>
+    let isNavigatingBack = false;
+
+    const navigateBack = (event: KeyboardEvent) => {
+        if (event.key !== 'Escape' || isNavigatingBack) {
+            return;
+        }
+
+        const backLink = document.querySelector<HTMLAnchorElement>('.back-btn');
+        if (!backLink) {
+            return;
+        }
+
+        isNavigatingBack = true;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.location.assign(backLink.href);
+    };
+
+    window.addEventListener('keydown', navigateBack, { capture: true });
+    window.addEventListener('keyup', navigateBack, { capture: true });
+</script>

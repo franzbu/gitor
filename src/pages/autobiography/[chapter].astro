@@ -1,6 +1,7 @@
 ---
 // src/pages/autobiography/[chapter].astro
 import rawHtml from '../../data/autobiography_of_a_yogi/yogi.html?raw';
+import EscapeBack from '../../components/EscapeBack.astro';
 
 export async function getStaticPaths() {
   // Ensure images point to the absolute path in the public folder (resilient to quote types)
@@ -265,7 +266,7 @@ const totalChapters = allTitles.length;
 
     <div id="all-footnotes-container" style="display: none;" set:html={allFootnotesHtml}></div>
 
-    <script is:inline src="/escape-back.js"></script>
+    <EscapeBack />
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -1,6 +1,7 @@
 ---
 // src/pages/bible/[chapter].astro
 import rawText from '../../data/bible.txt?raw';
+import EscapeBack from '../../components/EscapeBack.astro';
 
 export async function getStaticPaths() {
   const markers = [
@@ -233,6 +234,6 @@ const totalChapters = allTitles.length;
             ) : <div />}
         </div>
     </div>
-    <script is:inline src="/escape-back.js"></script>
+    <EscapeBack />
 </body>
 </html>

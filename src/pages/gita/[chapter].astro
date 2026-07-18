@@ -1,6 +1,7 @@
 ---
 // src/pages/gita/[chapter].astro
 import rawText from '../../data/gita.txt?raw';
+import EscapeBack from '../../components/EscapeBack.astro';
 
 export async function getStaticPaths() {
   // Use the exact headers found in the plain text file
@@ -215,6 +216,6 @@ const totalChapters = allTitles.length;
             ) : <div />}
         </div>
     </div>
-    <script is:inline src="/escape-back.js"></script>
+    <EscapeBack />
 </body>
 </html>
