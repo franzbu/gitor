@@ -265,6 +265,8 @@ const totalChapters = allTitles.length;
 
     <div id="all-footnotes-container" style="display: none;" set:html={allFootnotesHtml}></div>
 
+    <script is:inline src="/escape-back.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('footnote-modal');
