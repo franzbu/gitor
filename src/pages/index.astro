@@ -118,7 +118,10 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
 
         /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
         .footer-quote { margin-top: 20rem;
-        margin-bottom: 0; }
+        margin-bottom: 0; min-height: 8rem; }
+
+        .js .footer-quote.quote-loading .quote,
+        .js .footer-quote.quote-loading .citation { visibility: hidden; }
 
         @media (max-width: 480px) {
             .container { padding: 1.25rem; }
@@ -129,6 +132,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             .link-card { transition: none; }
         }
     </style>
+    <script is:inline>document.documentElement.classList.add('js');</script>
 </head>
 <body>
     <main class="container">
@@ -151,7 +155,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             <a href="/you/" class="link-card">You</a>
         </nav>
 
-        <div class="daily-quote footer-quote">
+        <div class="daily-quote footer-quote quote-loading" aria-live="polite" aria-busy="true">
             <p class="quote" id="hourly-quote-text">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
             <p class="citation" id="hourly-citation-text">Shakespeare, The Tempest</p>
         </div>
@@ -180,6 +184,12 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             .catch((error) => console.warn('Using the built-in daily quote fallback.', error));
 
         // --- 2. 6-HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
+        const hourlyQuoteContainer = document.querySelector('.footer-quote');
+        const showHourlyQuote = () => {
+            hourlyQuoteContainer?.classList.remove('quote-loading');
+            hourlyQuoteContainer?.setAttribute('aria-busy', 'false');
+        };
+
         if (totalQuotes > 0) {
             // Function to generate a unique integer seed for the current 6-hour block in Rome time
             const getRomeBlock = (timestamp) => {
@@ -238,7 +248,10 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
                         }
                     }
                 })
-                .catch(error => console.error('Error fetching quote:', error));
+                .catch(error => console.error('Error fetching quote:', error))
+                .finally(showHourlyQuote);
+        } else {
+            showHourlyQuote();
         }
 
         // --- 3. AUTO-REFRESH AT THE NEXT 6-HOUR MARK (Rome Time) ---

@@ -53,6 +53,7 @@ The website includes a web app manifest and a versioned service worker. Browsers
 - The homepage and offline fallback are saved during installation.
 - Visited pages and assets are cached for later offline reading.
 - Navigations, daily entries, and rotating quotations use the network first so returning visitors receive current content and deployments.
+- The rotating quotation stays visually reserved while loading, then reveals either the current quotation or its offline fallback without flashing stale text.
 - When the network is unavailable, previously visited pages are used; an unvisited route shows the offline page.
 
 When changing caching behavior, update `CACHE_VERSION` in `public/sw.js` so existing installations discard obsolete caches.

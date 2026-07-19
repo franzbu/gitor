@@ -33,6 +33,8 @@ const homepage = fs.readFileSync(path.join(clientDirectory, 'index.html'), 'utf8
 assert(Buffer.byteLength(homepage) < 30_000, 'Homepage payload exceeded the 30 KB HTML budget.');
 assert(!homepage.includes('const fileContent'), 'The full spiritual diary was embedded in the homepage.');
 assert(homepage.includes("replace(/\\s+/g, '-')"), 'The daily diary URL does not normalize spaces to hyphens.');
+assert(homepage.includes('footer-quote quote-loading'), 'The rotating quotation lacks its initial loading state.');
+assert(homepage.includes('.finally(showHourlyQuote)'), 'The rotating quotation loading state is not finalized.');
 
 const sitemap = fs.readFileSync(path.join(clientDirectory, 'sitemap-0.xml'), 'utf8');
 const sitemapUrls = [...sitemap.matchAll(/<loc>/g)].length;
