@@ -1,0 +1,21 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/manifest.json
+  Cache-Control: no-cache
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/quotes/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/diary/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

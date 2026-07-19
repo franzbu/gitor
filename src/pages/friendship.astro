@@ -1,13 +1,18 @@
 ---
 // src/pages/friendship.astro
 import EscapeBack from '../components/EscapeBack.astro';
+import SiteMeta from '../components/SiteMeta.astro';
+
+const pageTitle = 'Friendship | God Is The Only Reality';
+const pageDescription = 'Read “Friendship,” a poem by Paramahansa Yogananda about selfless love and spiritual companionship.';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship | God Is The Only Reality</title>
+    <title>{pageTitle}</title>
+    <SiteMeta title={pageTitle} description={pageDescription} canonicalPath="/friendship/" imagePath="/paramahansa-yogananda-photo-2-5-x-3-5-yss-front-600x858.webp" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
     <style is:global>
@@ -123,15 +128,13 @@ import EscapeBack from '../components/EscapeBack.astro';
             }
         }
     </style>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#030303">
 </head>
 <body>
     <div class="bg-image"></div>
     
     <a href="/" class="back-btn">← Back</a>
 
-    <div class="poem-container">
+    <main class="poem-container">
         
         <h1>Friendship</h1>
         <p class="subtitle">Paramahansa Yogananda</p>
@@ -186,7 +189,7 @@ Of the inmost, selfless heart’s devotion.
 Ah, friendship! Where thy soul-born flowers fall —
 There, on that sacred shrine of fragrance,
 The Friend of all friends craves to come and remain!</div>
-    </div>
+    </main>
     <EscapeBack />
 </body>
 </html>

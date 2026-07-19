@@ -1,0 +1,41 @@
+---
+import SiteMeta from '../components/SiteMeta.astro';
+
+const title = 'Offline | God Is The Only Reality';
+const description = 'You are offline. Reconnect to open content that has not yet been saved on this device.';
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <SiteMeta title={title} description={description} canonicalPath="/offline/" type="website" index={false} />
+    <style>
+        :root { color-scheme: dark; --bg: #030303; --text: #f3f4f6; --accent: #ca9f1b; }
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, sans-serif;
+            text-align: center;
+        }
+        main { max-width: 36rem; }
+        h1 { color: var(--accent); }
+        p { line-height: 1.7; }
+        a { color: var(--text); text-underline-offset: 0.25rem; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>You are offline</h1>
+        <p>Previously opened pages remain available. Reconnect to open content that has not yet been saved on this device.</p>
+        <p><a href="/">Return to the homepage</a></p>
+    </main>
+</body>
+</html>

@@ -2,10 +2,24 @@
   "name": "Franz | gitor.uk",
   "short_name": "Gitor",
   "description": "Personal Space of Franz - Literature & Philosophy",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#030303",
   "theme_color": "#030303",
+  "lang": "en",
+  "categories": ["books", "education", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Autobiography of a Yogi",
+      "url": "/autobiography/1/"
+    },
+    {
+      "name": "Bhagavad Gita",
+      "url": "/gita/2/"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",

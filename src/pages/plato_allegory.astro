@@ -1,13 +1,18 @@
 ---
 // src/pages/plato_allegory.astro
 import EscapeBack from '../components/EscapeBack.astro';
+import SiteMeta from '../components/SiteMeta.astro';
+
+const pageTitle = 'Allegory of the Cave | Plato’s Republic';
+const pageDescription = 'Read Plato’s Allegory of the Cave from The Republic, Book VII, on education, truth, knowledge, and enlightenment.';
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Allegory of the Cave | God Is The Only Reality</title>
+    <title>{pageTitle}</title>
+    <SiteMeta title={pageTitle} description={pageDescription} canonicalPath="/plato_allegory/" imagePath="/cave.webp" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
     <style is:global>
@@ -122,7 +127,7 @@ import EscapeBack from '../components/EscapeBack.astro';
     <!-- Moved outside the container to ensure position: fixed anchors to the viewport -->
     <a href="/" class="back-btn">← Back</a>
     
-    <div class="container">
+    <main class="container">
         <h1>Allegory of the Cave</h1>
         <p class="subtitle">Plato (The Republic, Book VII, 514a-521d)</p>
         
@@ -281,7 +286,7 @@ import EscapeBack from '../components/EscapeBack.astro';
             
             <p><span class="speaker">[Glaucon]</span> Quite so.</p>
         </div>
-    </div>
+    </main>
     <EscapeBack />
 </body>
 </html>

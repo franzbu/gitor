@@ -2,6 +2,10 @@
 // src/pages/index.astro
 import fileContent from '../data/spiritual_diary.txt?raw';
 import quotesContent from '../data/quotes.txt?raw';
+import SiteMeta from '../components/SiteMeta.astro';
+
+const pageTitle = 'God Is The Only Reality';
+const pageDescription = 'Read spiritual literature, philosophy, sacred texts, poetry, and daily wisdom from a curated online library.';
 
 // 1. Server-side fallback: Keeps the Rome timezone so the page never loads blank
 const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
@@ -21,7 +25,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>God Is The Only Reality</title>
+    <title>{pageTitle}</title>
+    <SiteMeta title={pageTitle} description={pageDescription} canonicalPath="/" imagePath="/cave.webp" type="website" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca9f1b'><path d='M12,22C12,22 4,16 4,12C4,8 12,2 12,2C12,2 20,8 20,12C20,16 12,22 12,22M12,4C12,4 7,8.5 7,12C7,15.5 12,19 12,19C12,19 17,15.5 17,12C17,8.5 12,4 12,4Z'/></svg>">
     <style is:global>
@@ -32,6 +37,8 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             --card-bg: rgba(14, 14, 14, 0.75);
             --card-border: rgba(214, 175, 55, 0.15);
         }
+
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -58,7 +65,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             pointer-events: none;
         }
 
-        .container { text-align: center; padding: 2rem;
+        .container { text-align: center; padding: 2rem; width: 100%;
         }
 
         /* Quote Styles */
@@ -73,7 +80,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         }
 
         h1 { 
-            font-size: 3.5rem;
+            font-size: clamp(2.25rem, 10vw, 3.5rem);
             margin: 3.5rem 0; /* Addressed spacing: more room before and after */
             background: linear-gradient(to right, var(--text-main) 50%, var(--accent));
             -webkit-background-clip: text; 
@@ -100,6 +107,7 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             backdrop-filter: blur(20px);
             min-width: 220px;
+            max-width: 100%;
         }
 
         .link-card:hover {
@@ -111,10 +119,19 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
         /* NEW: Isolated spacing just for the bottom quote so nothing else is affected */
         .footer-quote { margin-top: 20rem;
         margin-bottom: 0; }
+
+        @media (max-width: 480px) {
+            .container { padding: 1.25rem; }
+            .link-card { min-width: 0; width: 100%; padding: 1.25rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .link-card { transition: none; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="container">
         <div class="daily-quote">
             <p class="quote" id="daily-quote-text">"{quote}"</p>
             <p class="citation" id="daily-citation-text">{citation}</p>
@@ -122,42 +139,45 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
 
         <h1>God Is The Only Reality</h1>
         
-        <div class="nav-grid">
-            <a href="/autobiography/1" class="link-card">Autobiography of a Yogi</a>
+        <nav class="nav-grid" aria-label="Library">
+            <a href="/autobiography/1/" class="link-card">Autobiography of a Yogi</a>
             <a href="/gita/2/" class="link-card">Bhagavad Gita</a>
             <a href="/bible/1/" class="link-card">Bible - King James Version</a>
             <a href="/lawrence/2/" class="link-card">The Practice of the Presence of God</a>
-            <a href="/plato_allegory" class="link-card">Allegory of the Cave</a>
-            <a href="/samadhi" class="link-card">Samadhi</a>
-            <a href="/friendship" class="link-card">Friendship</a>
-            <a href="/gitanjali" class="link-card">Gitanjali</a>
-            <a href="/you" class="link-card">You</a>
-        </div>
+            <a href="/plato_allegory/" class="link-card">Allegory of the Cave</a>
+            <a href="/samadhi/" class="link-card">Samadhi</a>
+            <a href="/friendship/" class="link-card">Friendship</a>
+            <a href="/gitanjali/" class="link-card">Gitanjali</a>
+            <a href="/you/" class="link-card">You</a>
+        </nav>
 
         <div class="daily-quote footer-quote">
             <p class="quote" id="hourly-quote-text">"We are such stuff as dreams are made on; and our little life is rounded with a sleep."</p>
             <p class="citation" id="hourly-citation-text">Shakespeare, The Tempest</p>
         </div>
-    </div>
+    </main>
 
-    <script define:vars={{ fileContent, totalQuotes }}>
+    <script define:vars={{ totalQuotes }}>
         // --- 1. DAILY SPIRITUAL DIARY QUOTE ---
         const now = new Date();
         const options = { timeZone: 'Europe/Rome', month: 'long', day: 'numeric' };
         const localTodayStr = new Intl.DateTimeFormat('en-US', options).format(now);
 
-        const regex = new RegExp(`\\*\\s+${localTodayStr}:\\s+"(.*?)"\\s+[—-]\\s+([^\\n\\r]+)`, 'i');
-        const match = fileContent.match(regex);
-
-        if (match) {
-            const quoteEl = document.getElementById('daily-quote-text');
-            const citationEl = document.getElementById('daily-citation-text');
-            
-            if(quoteEl && citationEl) {
-                quoteEl.textContent = `"${match[1]}"`;
-                citationEl.textContent = match[2];
-            }
-        }
+        const diaryKey = localTodayStr.toLowerCase().replace(/\s+/g, '-');
+        fetch(`/diary/${diaryKey}.json`)
+            .then((response) => {
+                if (!response.ok) throw new Error(`Daily quote request failed: ${response.status}`);
+                return response.json();
+            })
+            .then(({ quote, citation }) => {
+                const quoteEl = document.getElementById('daily-quote-text');
+                const citationEl = document.getElementById('daily-citation-text');
+                if (quoteEl && citationEl && quote && citation) {
+                    quoteEl.textContent = `"${quote}"`;
+                    citationEl.textContent = citation;
+                }
+            })
+            .catch((error) => console.warn('Using the built-in daily quote fallback.', error));
 
         // --- 2. 6-HOURLY RANDOM FOOTER QUOTE (FETCHED DYNAMICALLY) ---
         if (totalQuotes > 0) {
@@ -198,7 +218,10 @@ const totalQuotes = [...quotesContent.matchAll(/([\s\S]+?)\n[-—―][^\n]+/g)].
 
             // Fetch ONLY the specific quote fragment needed for this 6-hour block
             fetch(`/quotes/quote-${idx}.txt`)
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) throw new Error(`Quote request failed: ${response.status}`);
+                    return response.text();
+                })
                 .then(text => {
                     const blockMatch = text.match(/([\s\S]+?)\n[-—―]\s*(.*)/);
                     if (blockMatch) {
