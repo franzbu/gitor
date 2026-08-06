@@ -43,7 +43,7 @@ assert(!sitemap.includes('/offline/'), 'Offline fallback must not appear in the 
 
 const quoteFiles = fs.readdirSync('./public/quotes').filter((filename) => /^quote-\d+\.txt$/.test(filename));
 const diaryFiles = fs.readdirSync('./public/diary').filter((filename) => /^[a-z]+-\d{1,2}\.json$/.test(filename));
-assert(quoteFiles.length === 498, `Expected 498 quote fragments, found ${quoteFiles.length}.`);
+assert(quoteFiles.length === 517, `Expected 517 quote fragments, found ${quoteFiles.length}.`);
 assert(diaryFiles.length === 365, `Expected 365 diary fragments, found ${diaryFiles.length}.`);
 
 const manifest = JSON.parse(fs.readFileSync('./public/manifest.json', 'utf8'));
